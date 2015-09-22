@@ -8,7 +8,7 @@ cd $BASEDIR/
 rm -rf *
 git clone https://github.com/Ideetron/packet_forwarder.git
 git clone https://github.com/Ideetron/lora_gateway.git
-cp Lorank/library.cfg lora_gateway/libloragw/library.cfg
+cp ../Lorank/library.cfg lora_gateway/libloragw/library.cfg
 cd lora_gateway
 git checkout -q Lorank_v$VERSION
 make

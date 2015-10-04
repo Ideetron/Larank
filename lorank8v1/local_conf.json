@@ -1,0 +1,10 @@
+{
+/* Put there parameters that are different for each gateway (eg. pointing one gateway to a test server while the others stay in production) */
+/* Settings defined in global_conf will be overwritten by those in local_conf */
+    "gateway_conf": {
+        "gateway_ID": "1DEE000000000000", /* pick an unique 16 byte number */
+        "ref_latitude": 0,   /* put your latitude here */
+        "ref_longitude": 0,  /* put your longitude here */
+        "ref_altitude": 0   /* put your altitude here */
+    }
+}

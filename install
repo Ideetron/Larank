@@ -1,0 +1,12 @@
+#!/bin/bash
+
+# start me like: install lorank8v1 1.0.1
+# from the directory you cloned the repro Lorank in.
+
+HWTARGET=$1
+SWVERSION=$2
+
+cd Lorank
+git checkout -q Lorank_v$SWVERSION
+cd ..
+./Lorank/$HWTARGET/install $SWVERSION

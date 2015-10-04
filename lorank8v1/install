@@ -1,0 +1,87 @@
+#!/bin/bash
+
+# Start this script with the software version number as argument
+# In the directory you cloned the repro Lorank in.
+# This script is NOT suitable for upgrading, but only for one time
+# initialization of a clean BeagleBordBlack.
+
+VERSION=$1
+BASEDIR=lorank8-$VERSION
+TARGETDIR=lorank8v1
+
+# Stop on the first sign of trouble
+set -e
+
+if [[ $1 == "" ]]
+then 
+  echo "ERROR: No version number supplied, cannot continue"
+  exit 1
+fi
+
+if [ ! -d Lorank ]
+then 
+  echo "ERROR: Invalid working directory, does not contain the Lorank directory"
+  exit 1
+fi
+
+# Make the required directories, make sure they are clean
+mkdir -p $BASEDIR
+pushd $BASEDIR
+rm -rf *
+
+# Get all required repositrories (Lorank itself is already present)
+git clone https://github.com/Ideetron/packet_forwarder.git
+git clone https://github.com/Ideetron/lora_gateway.git
+popd
+
+# Modify files for this specific release
+cp Lorank/$TARGETDIR/library.cfg $BASEDIR/lora_gateway/libloragw/library.cfg
+
+# Make the Lorank specific software 
+pushd Lorank/$TARGETDIR
+git checkout -q Lorank_v$VERSION
+g++ -O2 -Wall ResetIC880A.cpp -o ResetIC880A
+popd
+
+# Compile the lora_gateway libraries
+pushd $BASEDIR/lora_gateway
+git checkout -q Lorank_v$VERSION
+make clean all
+popd
+
+# Compile the packet_forwarder applications
+pushd  $BASEDIR/packet_forwarder
+git checkout -q Lorank_v$VERSION
+make clean all
+popd
+
+# Make the target directories, make sure they are clean
+mkdir -p $TARGETDIR
+pushd $TARGETDIR
+rm -rf *
+popd
+
+# Copy the executeables to a suiteable location
+cp  $BASEDIR/packet_forwarder/basic_pkt_fwd/basic_pkt_fwd $TARGETDIR/
+cp  $BASEDIR/packet_forwarder/poly_pkt_fwd/poly_pkt_fwd $TARGETDIR/
+
+# Copy the configuration files to the target directory
+cp Lorank/$TARGETDIR/global_conf.json $TARGETDIR/
+
+# Give The gateway an unique address.
+REPLACE=`printf "%016x" $((0x1dee<<48 | RANDOM<<30 | RANDOM<<15 | RANDOM))`; 
+cat Lorank/$TARGETDIR/local_conf.json | sed "s|1DEE000000000000|${REPLACE}|" > $TARGETDIR/local_conf.json
+
+# Make sure lorank gets to be a service at boottime
+cp Lorank/$TARGETDIR/lorank.service /lib/systemd/system/
+
+# Disable HDMI on the BBB
+cp /boot/uboot/uEnv.txt /boot/uboot/uEnvORG.txt
+patch /boot/uboot/uEnv.txt Lorank/uEnv-v1.patch 
+
+# Set a password for the root (user must change this on first use!)
+chpasswd root:LorankAdmin
+
+# We are done, next time we boot, this all should work
+shutdown -h now
+

@@ -1,0 +1,14 @@
+12c12,15
+< #cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN,BB-BONE-EMMC-2G
+---
+> cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
+> 
+> ##SPI0
+> cape_enable=capemgr.enable_partno=BB-SPIDEV0,BB-BONE-EMMC-2G
+15c18,21
+< #cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
+---
+> cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
+> 
+> ##SPI0
+> cape_enable=capemgr.enable_partno=BB-SPIDEV0

@@ -74,10 +74,11 @@ cat Lorank/$TARGETDIR/local_conf.json | sed "s|1DEE000000000000|${REPLACE}|" > $
 
 # Make sure lorank gets to be a service at boottime
 cp Lorank/$TARGETDIR/lorank.service /lib/systemd/system/
+systemctl enable lorank.service
 
 # Disable HDMI on the BBB
 cp /boot/uboot/uEnv.txt /boot/uboot/uEnvORG.txt
-patch /boot/uboot/uEnv.txt Lorank/uEnv-v1.patch 
+patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/uEnv-v1.patch 
 
 # Set a password for the root (user must change this on first use!)
 chpasswd root:LorankAdmin

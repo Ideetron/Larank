@@ -2,7 +2,7 @@
 Description=Lorank concentrator activation
 
 [Service]
-WorkingDirectory=/root/lorank8v1/packet_forwarder
+WorkingDirectory=/root/lorank8v1/
 ExecStart=/root/lorank8v1/poly_pkt_fwd
 SyslogIdentifier=lorank8v1
 Restart=on-failure

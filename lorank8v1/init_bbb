@@ -1,0 +1,39 @@
+#!/bin/bash
+
+# Start this script once to modify a new BBB
+# In the directory you cloned the repro Lorank in.
+
+TARGETDIR=lorank8v1
+
+# Stop on the first sign of trouble
+set -e
+
+# Check if we start at the correct location
+if [ ! -d Lorank ]
+then 
+  echo "ERROR: Invalid working directory, does not contain the Lorank directory"
+  exit 1
+fi
+
+# Make the Lorank platform specific software 
+pushd Lorank/$TARGETDIR
+g++ -O2 -Wall ResetIC880A.cpp -o ResetIC880A
+popd
+
+# Make sure lorank gets to be a service after boottime
+cp Lorank/$TARGETDIR/lorank.service /lib/systemd/system/
+systemctl enable lorank.service
+
+# Disable HDMI on the BBB
+cp /boot/uboot/uEnv.txt /boot/uboot/uEnvORG.txt
+patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/uEnv-v1.patch 
+
+# Set the hostname to lorank8
+BBBNAME=$(hostname)
+NEWNAME="lorank8"
+hostname $NEWNAME
+echo $NEWNAME > /etc/hostname
+sed -i "s/$BBBNAME/$NEWNAME/" /etc/hosts               
+
+# Set a password for the root (user must change this on first use!)
+chpasswd root:LorankAdmin

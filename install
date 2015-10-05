@@ -6,7 +6,13 @@
 HWTARGET=$1
 SWVERSION=$2
 
-cd Lorank
+# Set the Lorank installation software to the correct release.
+pushd Lorank
 git checkout -q Lorank_v$SWVERSION
-cd ..
+popd
+
+# Start the platform dependent installation for this release.
 ./Lorank/$HWTARGET/install $SWVERSION
+
+# We are done, next time we boot, this all should work
+shutdown -h now

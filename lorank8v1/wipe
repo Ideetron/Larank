@@ -1,0 +1,41 @@
+#!/bin/bash
+
+# Start this script to remove Lorank and modifications
+# In the directory you cloned the repro Lorank in.
+# option "--force" is required to start.
+
+TARGETDIR=lorank8v1
+
+# Stop on the first sign of trouble
+set -e
+
+if [ ! -d Lorank ]
+then 
+  echo "ERROR: Invalid working directory, does not contain the Lorank directory"
+  exit 1
+fi
+
+if [[ $1 != "--force" ]]
+then
+  echo "INFO: Option --force is required to prevent accidental wiping of Lorank services."
+  echo "This script deletes Lorank software AND bootup services required to reset hardware."
+  echo "There are valid reasons for use, but a software upgrade is NOT one of them."
+  echo "After a wipe, complete reinstall of lora software is required, use with extreme care."
+  echo "In case of doubt, do NOT use."
+  exit
+fi
+
+# Remove the Lorank directory (of which everything is a child)
+rm -rf Lorank
+
+# Restore the boot environment 
+if [ -e /boot/uboot/uEnvORG.txt ]
+then 
+  rm /boot/uboot/uEnv.txt
+  mv /boot/uboot/uEnvORG.txt /boot/uboot/uEnv.txt
+fi
+
+# Remove Lorank startup services 
+systemctl stop lorank.service
+systemctl disable lorank.service
+rm /lib/systemd/system/lorank.service

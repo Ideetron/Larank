@@ -40,4 +40,4 @@ mv /var/lib/cloud9/index.html /var/lib/cloud9/indexORG.html
 cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
 
 # Set a password for the root (user must change this on first use!)
-chpasswd root:LorankAdmin
+echo "root:LorankAdmin" | chpasswd 

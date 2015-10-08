@@ -57,7 +57,7 @@ popd
 # Make the target directories, make sure they are clean enough
 mkdir -p $TARGETDIR
 pushd $TARGETDIR
-rm *_pkt_fwd
+rm -f *_pkt_fwd
 if [ -e global_conf.json ] 
 then 
   mv global_conf.json global_conf_old.json

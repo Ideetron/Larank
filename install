@@ -8,7 +8,7 @@ SWVERSION=$2
 
 # Set the Lorank installation software to the correct release.
 pushd Lorank
-git checkout -q Lorank_v$SWVERSION
+if [[ $SWVERSION != "" ]]; then git checkout -q Lorank_v$SWVERSION; fi
 popd
 
 # Start the platform dependent installation for this release.

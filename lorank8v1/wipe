@@ -27,6 +27,7 @@ fi
 
 # Remove the Lorank directory (of which everything is a child)
 rm -rf Lorank
+rm -rf lorank*
 
 # Restore the boot environment 
 if [ -e /boot/uboot/uEnvORG.txt ]

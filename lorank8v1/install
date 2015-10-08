@@ -12,10 +12,9 @@ HWTARGET=lorank8v1
 set -e
 
 # Check if a version is supplied (obligatory at this point)
-if [[ $1 == "" ]]
+if [[ $VERSION == "" ]]
 then 
-  echo "ERROR: No version number supplied, cannot continue"
-  exit 1
+  echo "WARNING: No version number supplied, use latest."
 fi
 
 # Check if we start at the correct location

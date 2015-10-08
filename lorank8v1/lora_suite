@@ -66,6 +66,7 @@ fi
 popd
 
 # Copy the executeables to the target location
+cp Lorank/$TARGETDIR/start $TARGETDIR/
 cp Lorank/$TARGETDIR/ResetIC880A $TARGETDIR/
 cp $BASEDIR/packet_forwarder/basic_pkt_fwd/basic_pkt_fwd $TARGETDIR/
 cp $BASEDIR/packet_forwarder/poly_pkt_fwd/poly_pkt_fwd $TARGETDIR/
@@ -80,3 +81,5 @@ then
   echo $REPLACE > $TARGETDIR/gatewayID
   cat Lorank/$TARGETDIR/local_conf.json | sed "s|1DEE000000000000|${REPLACE}|" > $TARGETDIR/local_conf.json
 fi;
+
+

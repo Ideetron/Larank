@@ -1,0 +1,3 @@
+#! /bin/bash
+./ResetIC880A  
+./poly_pkt_fwd

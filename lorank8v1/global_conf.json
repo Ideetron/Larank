@@ -207,12 +207,15 @@
         "radiostream": true,
         "statusstream": true,
         /* node server for basic packet server */
-        "server_address": "croft.thingsnetwork.org",
-        "serv_port_up": 1700,
-        "serv_port_down": 1701,        
+        "server_address": "iot.semtech.com",
+        "serv_port_up": 1680,
+        "serv_port_down": 1680,        
         /* node servers for poly packet server (max 4) */
         "servers":
-        [ { "server_address": "croft.thingsnetwork.org",
+        [ { "server_address": "iot.semtech.com",
+            "serv_port_up": 1680,
+            "serv_port_down": 1680 },
+          { "server_address": "croft.thingsnetwork.org",
             "serv_port_up": 1700,
             "serv_port_down": 1701 },
           { "server_address": "amsterdam.loraley.org",

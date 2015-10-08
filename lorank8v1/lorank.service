@@ -3,8 +3,7 @@ Description=Lorank activation
 
 [Service]
 WorkingDirectory=/root/lorank8v1/
-ExecStart=/root/lorank8v1/ResetIC880A
-ExecStart=/root/lorank8v1/poly_pkt_fwd
+ExecStart=/root/lorank8v1/start
 SyslogIdentifier=lorank8v1
 Restart=on-failure
 RestartSec=5

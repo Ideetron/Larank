@@ -1,0 +1,35 @@
+<html>
+<head>
+
+  <script type="text/javascript" src="/static/jquery.js" charset="UTF-8"></script>
+  <script type="text/javascript" src="/static/bonescript.js" charset="UTF-8">
+  </script>
+  <script>
+  setTargetAddress(location.host,{})
+  </script>
+  <script>
+  function getit() {
+    var bone = require('bonescript');
+    bone.readTextFile('/root/lorank8v1/gatewayID',printData);
+    function printData(x) { document.getElementById('demo').innerHTML = x.data; } }
+  </script>
+</head>
+<body>
+
+<table>
+<tr colspan=2>
+  <td> <center> <h1>Lorank 8</h1> </center> </td>
+</tr>
+<tr>
+  <td>
+    <img 
+      alt="Check if the gateway can reach Internet." 
+      src="http://www.ideetron.nl/wp-content/uploads/2015/09/20150922_133307.jpg" width=240px>
+  </td>
+  <td>
+<button type="button" onclick="getit()"> Click me to get Gateway ID </button>
+  <p id="demo"></p>
+  </td>
+</tr>
+</table>
+</body>

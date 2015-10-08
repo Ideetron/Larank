@@ -35,6 +35,13 @@ then
   mv /boot/uboot/uEnvORG.txt /boot/uboot/uEnv.txt
 fi
 
+# Restore the webpage
+if [ -e /var/lib/cloud9/indexORG.html ]
+then 
+  rm /var/lib/cloud9/index.html
+  mv /var/lib/cloud9/indexORG.html /var/lib/cloud9/index.html
+fi
+
 # Remove Lorank startup services 
 systemctl stop lorank.service
 systemctl disable lorank.service

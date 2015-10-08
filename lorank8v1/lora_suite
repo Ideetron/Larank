@@ -74,8 +74,9 @@ cp $BASEDIR/packet_forwarder/poly_pkt_fwd/poly_pkt_fwd $TARGETDIR/
 cp Lorank/$TARGETDIR/global_conf.json $TARGETDIR/
 
 # Give the gateway an unique address, if not already present.
-if [ ! -e local_conf.json ]
+if [ ! -e $TARGETDIR/local_conf.json ]
 then
   REPLACE=`printf "%016x" $((0x1dee<<48 | RANDOM<<30 | RANDOM<<15 | RANDOM))`; 
+  echo $REPLACE > $TARGETDIR/gatewayID
   cat Lorank/$TARGETDIR/local_conf.json | sed "s|1DEE000000000000|${REPLACE}|" > $TARGETDIR/local_conf.json
 fi;

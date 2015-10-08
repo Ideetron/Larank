@@ -33,7 +33,11 @@ BBBNAME=$(hostname)
 NEWNAME="lorank8"
 hostname $NEWNAME
 echo $NEWNAME > /etc/hostname
-sed -i "s/$BBBNAME/$NEWNAME/" /etc/hosts               
+sed -i "s/$BBBNAME/$NEWNAME/" /etc/hosts
+
+# Load a basic webpage
+mv /var/lib/cloud9/index.html /var/lib/cloud9/indexORG.html
+cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
 
 # Set a password for the root (user must change this on first use!)
 chpasswd root:LorankAdmin

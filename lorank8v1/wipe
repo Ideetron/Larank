@@ -32,18 +32,19 @@ rm -rf lorank*
 # Restore the boot environment 
 if [ -e /boot/uboot/uEnvORG.txt ]
 then 
-  rm /boot/uboot/uEnv.txt
+  rm -f /boot/uboot/uEnv.txt
   mv /boot/uboot/uEnvORG.txt /boot/uboot/uEnv.txt
 fi
 
 # Restore the webpage
 if [ -e /var/lib/cloud9/indexORG.html ]
 then 
-  rm /var/lib/cloud9/index.html
+  rm -f /var/lib/cloud9/index.html
+  rm -f /var/lib/cloud9/images/photo.jpg
   mv /var/lib/cloud9/indexORG.html /var/lib/cloud9/index.html
 fi
 
 # Remove Lorank startup services 
 systemctl stop lorank.service
 systemctl disable lorank.service
-rm /lib/systemd/system/lorank.service
+rm -f /lib/systemd/system/lorank.service

@@ -4,6 +4,8 @@
 # In the directory you cloned the repro Lorank in.
 
 TARGETDIR=lorank8v1
+DOGTAG=$(md5sum /etc/dogtag)
+DTSHORT=${DOGTAG:0:5}
 
 # Stop on the first sign of trouble
 set -e
@@ -12,6 +14,12 @@ set -e
 if [ ! -d Lorank ]
 then 
   echo "ERROR: Invalid working directory, does not contain the Lorank directory"
+  exit 1
+fi
+
+if [ ! -d Lorank/$TARGETDIR/$DTSHORT ]
+then 
+  echo "ERROR: BBB Release not know, no initialization possible"
   exit 1
 fi
 
@@ -26,7 +34,7 @@ systemctl enable lorank.service
 
 # Disable HDMI on the BBB
 cp /boot/uboot/uEnv.txt /boot/uboot/uEnvORG.txt
-patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/uEnv-v1.patch 
+patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
 
 # Set the hostname to lorank8
 BBBNAME=$(hostname)
@@ -38,6 +46,7 @@ sed -i "s/$BBBNAME/$NEWNAME/" /etc/hosts
 # Load a basic webpage
 mv /var/lib/cloud9/index.html /var/lib/cloud9/indexORG.html
 cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
+cp Lorank/$TARGETDIR/photo.jpg  /var/lib/cloud9/images/
 
 # Set a password for the root (user must change this on first use!)
 echo "root:LorankAdmin" | chpasswd 

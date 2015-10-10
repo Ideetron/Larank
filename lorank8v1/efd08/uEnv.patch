@@ -1,0 +1,4 @@
+16a17,19
+> #Enable SPI0, Disable HDMI
+> optargs=quiet drm.debug=7 capemgr.enable_partno=BB-SPIDEV0 capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
+> 

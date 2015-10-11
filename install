@@ -15,7 +15,7 @@ SWVERSION=$2
 
 # report progress
 led_blank
-led_flash 1
+led_flash 0
 sleep 1
 
 # Set the Lorank installation software to the correct release.

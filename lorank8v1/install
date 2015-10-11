@@ -5,6 +5,13 @@
 # This script is NOT suitable for upgrading, but only for one time
 # initialization of a clean BeagleBordBlack.
 
+# Control of urs leds
+function led_on    { pushd /sys/class/leds/beaglebone\:green\:usr$1; echo none  > trigger; echo 1 > brightness; popd; }
+function led_off   { pushd /sys/class/leds/beaglebone\:green\:usr$1; echo none  > trigger; echo 0 > brightness; popd; }
+function led_flash { pushd /sys/class/leds/beaglebone\:green\:usr$1; echo timer > trigger; echo 50 > delay_on; echo 100 > delay_off; popd; }
+function led_blank { off 0; off 1; off 2; off 3; }
+function led_error { flash 0; flash 1; flash 2; flash 3; }
+
 VERSION=$1
 HWTARGET=lorank8v1
 
@@ -24,9 +31,23 @@ then
   exit 1
 fi
 
+# report progress
+led_on 0
+led_flash 1
+sleep 1
+
 # Initialize the BeagleBordBlack for first use.
 ./Lorank/$HWTARGET/init_bbb 
+
+# report progress
+led_on 1
+led_flash 2
+sleep 1
 
 # Install the lora suite. 
 ./Lorank/$HWTARGET/lora_suite $VERSION
 
+# report progress
+led_on 2
+led_flash 3
+sleep 1

@@ -48,5 +48,8 @@ mv /var/lib/cloud9/index.html /var/lib/cloud9/indexORG.html
 cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
 cp Lorank/$TARGETDIR/photo.jpg  /var/lib/cloud9/images/
 
+# Disable the default debian login
+passwd debian -l 
+
 # Set a password for the root (user must change this on first use!)
 echo "root:LorankAdmin" | chpasswd 

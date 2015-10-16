@@ -48,3 +48,9 @@ fi
 systemctl stop lorank.service
 systemctl disable lorank.service
 rm -f /lib/systemd/system/lorank.service
+
+#Enable the debian (default) user
+passwd debian -u
+
+#Remove the root password
+passwd -d root

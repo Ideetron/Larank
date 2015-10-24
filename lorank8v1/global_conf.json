@@ -214,13 +214,16 @@
         "servers":
         [ { "server_address": "iot.semtech.com",
             "serv_port_up": 1680,
-            "serv_port_down": 1680 },
+            "serv_port_down": 1680,
+            "serv_enabled": true },
           { "server_address": "croft.thingsnetwork.org",
             "serv_port_up": 1700,
-            "serv_port_down": 1701 },
+            "serv_port_down": 1701,
+            "serv_enabled": true },
           { "server_address": "amsterdam.loraley.org",
             "serv_port_up": 1680,
-            "serv_port_down": 1681 } ],
+            "serv_port_down": 1681,
+            "serv_enabled": true } ],
         /* adjust the following parameters for your network */
         "keepalive_interval": 10,
         "stat_interval": 30,
@@ -240,6 +243,12 @@
         "ghost_port": 1918,
         /* Monitor configuration */
         "monitor_address": "127.0.0.1",
-        "monitor_port": 2008   
+        "monitor_port": 2008,
+        /* Platform definition, put a asterix here for the system value, max 24 chars. */
+        "platform": "*", 
+        /* Email of gateway operator, max 40 chars*/
+        "contact_email": "", 
+        /* Public description of this device, max 64 chars */
+        "description": ""    
     }
 }

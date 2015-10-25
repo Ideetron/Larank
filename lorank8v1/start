@@ -1,7 +1,7 @@
 #! /bin/bash
 
 # Test the connection, wait if needed.
-while [[ $(ping -t5 -c1 google.com 2>&1 | grep "0% packet loss") == "" ]]; do
+while [[ $(ping -c1 google.com 2>&1 | grep " 0% packet loss") == "" ]]; do
   echo "lorank: waiting for internet connection ... "
   sleep 30
   done

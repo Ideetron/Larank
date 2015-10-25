@@ -30,3 +30,6 @@
 
 # Debug files
 *.dSYM/
+
+#Specific Executables
+lorank8v1/ResetIC880A

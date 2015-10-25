@@ -1,0 +1,35 @@
+#!/bin/bash
+
+# Start this script with the software version number as argument
+# In the directory you cloned the repro Lorank in.
+# This script is  suitable for upgrading only
+
+VERSION=$1
+HWTARGET=lorank8v1
+
+# Stop on the first sign of trouble
+set -e
+
+# Check if a version is supplied (obligatory at this point)
+if [[ $VERSION == "" ]]
+then 
+  echo "WARNING: No version number supplied, use latest."
+fi
+
+# Check if we start at the correct location
+if [ ! -d Lorank ]
+then 
+  echo "ERROR: Invalid working directory, does not contain the Lorank directory"
+  exit 1
+fi
+
+# Upgrade the Lorank tree
+pushd Lorank
+git checkout master
+git pull
+if [[ $VERSION != "" ]]; then git checkout -q Lorank_v$VERSION; fi
+popd
+
+# Install the new lora suite 
+./Lorank/$HWTARGET/lora_suite $VERSION
+

@@ -1,0 +1,7 @@
+10c10,13
+< cape_enable=capemgr.enable_partno=BB-UART2
+---
+> #cape_enable=capemgr.enable_partno=BB-UART2
+> 
+> ##SPI0
+> cape_enable=capemgr.enable_partno=BB-SPIDEV0

@@ -33,8 +33,17 @@ cp Lorank/$TARGETDIR/lorank.service /lib/systemd/system/
 systemctl enable lorank.service
 
 # Disable HDMI on the BBB
-cp /boot/uboot/uEnv.txt /boot/uboot/uEnvORG.txt
-patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
+if [ -e /boot/uEnv.txt ] 
+then 
+  cp /boot/uEnv.txt /boot/uEnvORG.txt
+  patch /boot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
+elif [ -e /boot/uboot/uEnv.txt ] 
+  cp /boot/uboot/uEnv.txt /boot/uboot/uEnvORG.txt
+  patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
+else
+  echo "Could not patch uEnv.txt"
+  exit 1
+fi
 
 # Set the hostname to lorank8
 BBBNAME=$(hostname)
@@ -44,6 +53,7 @@ echo $NEWNAME > /etc/hostname
 sed -i "s/$BBBNAME/$NEWNAME/" /etc/hosts
 
 # Load a basic webpage
+mkdir -p /var/lib/cloud9/images
 mv /var/lib/cloud9/index.html /var/lib/cloud9/indexORG.html
 cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
 cp Lorank/$TARGETDIR/photo.jpg  /var/lib/cloud9/images/

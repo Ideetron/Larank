@@ -38,6 +38,7 @@ then
   cp /boot/uEnv.txt /boot/uEnvORG.txt
   patch /boot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
 elif [ -e /boot/uboot/uEnv.txt ] 
+then
   cp /boot/uboot/uEnv.txt /boot/uboot/uEnvORG.txt
   patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
 else

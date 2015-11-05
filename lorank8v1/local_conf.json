@@ -5,6 +5,8 @@
         "gateway_ID": "1DEE000000000000", /* pick an unique 8 byte number */
         "ref_latitude": 0,   /* put your latitude here */
         "ref_longitude": 0,  /* put your longitude here */
-        "ref_altitude": 0   /* put your altitude here */
+        "ref_altitude": 0,   /* put your altitude here */
+        "contact_email": "", /* Email of gateway operator, max 40 chars*/
+        "description": ""    /* Public description of this device, max 64 chars */
     }
 }

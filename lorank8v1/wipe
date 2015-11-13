@@ -49,6 +49,9 @@ systemctl stop lorank.service
 systemctl disable lorank.service
 rm -f /lib/systemd/system/lorank.service
 
+# Remove all ssh related stuff
+rm -rf /root/.ssh
+
 #Enable the debian (default) user
 passwd debian -u
 

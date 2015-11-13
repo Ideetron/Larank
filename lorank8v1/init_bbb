@@ -59,6 +59,21 @@ mv /var/lib/cloud9/index.html /var/lib/cloud9/indexORG.html
 cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
 cp Lorank/$TARGETDIR/photo.jpg  /var/lib/cloud9/images/
 
+# Generate a key-pair so you can enable remote maintenance
+if [ ! -e /root/.ssh/id_rsa ] 
+then 
+  ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
+fi
+
+# Get the ngrok binairy for remote maintenance
+if [ ! -e /usr/bin/ngrok ] 
+then
+  wget -nv https://github.com/Ideetron/Lorank/raw/master/lorank8v1/ngrok_2.0.19.gz 
+  gunzip ngrok_2.0.19.gz 
+  mv ngrok_2.0.19 /usr/bin/ngrok
+  chmod u+x /usr/bin/ngrok
+fi   
+
 # Disable the default debian login
 passwd debian -l 
 

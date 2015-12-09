@@ -1,7 +1,0 @@
-47c47,50
-< #cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
----
-> cape_disable=capemgr.disable_partno=BB-BONELT-HDMI,BB-BONELT-HDMIN
-> 
-> ##SPI0
-> cape_enable=capemgr.enable_partno=BB-SPIDEV0

@@ -1,0 +1,547 @@
+\documentclass[12pt]{article}
+\usepackage[a4paper,margin=20mm]{geometry}
+\usepackage[parfill]{parskip}
+\usepackage{graphicx} 
+\usepackage{sidecap}
+\usepackage{subfig}
+\usepackage{color}
+\usepackage{url}
+\usepackage{mathabx}
+\usepackage{relsize}
+\usepackage{tcolorbox}
+\usepackage{adjustbox}
+%\usepackage{hyperref}
+%\usepackage[usenames,dvipsnames]{pstricks}
+%\usepackage{epsfig}
+%\usepackage{pst-all}
+%\usepackage{pst-pdf}
+%\usepackage{pst-grad} % For gradients
+%\usepackage{pst-plot} % For axes
+\usepackage{setspace}
+\usepackage{emp}
+\usepackage{type1cm}
+\usepackage{eso-pic}
+\usepackage{multirow}
+\usepackage{hhline}
+\usepackage{colortbl}
+\usepackage{tabularx}
+\usepackage{arydshln}
+\usepackage{xcolor}
+\usepackage{lscape}
+\usepackage{enumitem}
+
+\newcommand{\ina}{\mbox{\hspace{2mm}}}
+\newcommand{\inb}{\mbox{\hspace{4mm}}}
+\newcommand{\inc}{\mbox{\hspace{6mm}}}
+\newcommand{\ind}{\mbox{\hspace{8mm}}}
+\newcommand{\pha}{\phantom\{}
+\newcommand{\phb}{\phantom\{\phantom\{}
+\newcommand{\phc}{\phantom\{\phantom\{\phantom\{}
+\newcommand{\phd}{\phantom\{\phantom\{\phantom\{\phantom\{}
+\newcommand{\nl}{\newline}
+
+\title{Manual Lorank 8.}
+\author{Ideetron}
+\date{\today}
+
+\input{../Commands-Common}
+
+\begin{document}
+\maketitle
+
+\begin{center}
+\includegraphics[width=70mm]{pic/redsmall.jpg}\\
+\larger[1] Document Version 1.0.7 \\
+\smaller[1] See \url{https://github.com/Ideetron/Lorank} \\ for the latest version of this manual.
+\end{center}
+
+
+\newpage
+
+% ==========================================================================================================================
+\section{Introduction}
+Welcome to the Lorank 8. This manual presents you with all the necessary 
+information to run your Lorank 8 in a safe way. Please read this manual carefully 
+before starting the Lorank 8 for the first time. 
+
+Lora technology is a very young technology and as such constantly changing. 
+The Lorank 8 implements the latest hardware and software as well 
+as the most recent publicly available protocol specifications such
+as LoRaWAN\_1R0. In order to be kept informed of future updates 
+you can subscribe to the Github of Ideetron: \url{https://github.com/Ideetron/Lorank}.  
+
+\section{Quick start}
+To quickly set up your gateway perform the steps below. 
+For this quick start to work, the following must be fulfilled:
+\begin{itemize}
+\item On your local network a DHCP server with DNS capabilities must be operational.
+\item Your PC and gateway are on the same subnet.
+\item Your router's firewall does {\bf not} block outgoing data traffic on higher port numbers.
+\item Make use of a recent browser (preferably {\bf not} Internet Explorer).
+\end{itemize}
+
+Then we can test if the gateway works and receives and forwards packets.
+If your router does not have DNS capabilities, the IP number must be used, please log
+in to you router to obtain the number that was issued to the gateway.
+
+\begin{itemize}
+\item Mount the antenna ({\bf never} operate the gateway without an antenna!)
+\item Connect the gateway to your local network using an ethernet cable.
+\item Connect the gateway to the supplied power source, and give it a few minutes to boot.
+\item On a pc, surf to \url{http://lorank8/} or \url{http://lorank8.local/} or \url{http://[ip-number]/}
+\end{itemize}
+
+Now you should see a simple webpage with a picture of the Lorank device. 
+If this is all correct, we can see if the data gets outside, to that end:
+
+\begin{itemize}
+\item Switch on any LoraWAN capable Mote [keep at least (!!) 2 meters distance between Mote and Gateway].
+\item Surf to \url{http://iot.semtech.com/gateways/} to see if the gateway is up, the first two bytes are 1D-EE.
+\item Surf to \url{http://iot.semtech.com/motes/} to see the Mote data.  
+\end{itemize}
+If you can find your gateway in the list, and see the Mote's data, you know everything works
+as required. If you see the gateway but not your Mote, the latter may not be functioning.
+If any of these steps should not succeed a more in careful startup procedure is needed, please see below.
+If you do not have a Mote, the gateway may not show up in the gateway list on \url{iot.semtech.com},
+in that case see if it is visible on the map on their website.
+
+Subsequently you can test if these packets are visible on The Things Network:
+\begin{itemize}
+\item Surf to \url{http://www.ttnstatus.org/} to see if the gateway is up.
+\item Surf to \url{http://thethingsnetwork.org/api/v0/gateways/} for additional data.
+\item Surf to \url{http://thethingsnetwork.org/api/v0/nodes/} to see the Mote data.
+\end{itemize}
+The Things Network is not yet fully operational and hiccups have been reported. 
+In case that seems to be at hand, but the former step works, try again after a few days.
+
+\section{Connection to the network}
+The gateway should first be connected to a local network and subsequently connected to the power adapter.
+Do {\bf not} connect the gateway directly to outside Internet. First, that network is very busy, and,
+more importantly, for the preconfigured gateway, it is relatively easy for outsiders to break in.
+Once that happens, a complete reflash of the memory is needed. The router takes care of the primary
+protection of your gateway. 
+
+The blue leds should light up. If this does not happen, there is something wrong with the
+5V Stabilised Power Supply. Please use the one that was delivered with the unit. 
+
+After a few minutes, the gateway starts asking for an IP number on the network using its DHCP client. 
+It is expected that you have a DHCP server running on your network. 
+Routers from network providers usually are configured that way. Depending on the services provided
+by that router you can find the gateway on its IP number or try to address it by its hostname.
+
+Try in a recent browser (preferably not Internet Explorer!) \url{http://lorank8/} or \url{http://lorank8.local/}
+You should see a webpage with a picture of the Lorank device. This indicates that the gateway is running.
+
+If that does not work, the router is probably not resolving  the name because no local dns is 
+running. In that case you need to obtain the IP number. This can only be done by logging into 
+the router itself, and look upon the list of connected devices. Please refer to the manual of 
+your router how this can be done. The number is usually something like 192.168.x.y or 
+10.x.y.z where x,y,z are numbers between 0 and 255. Then, in the browser try  \url{http://192.168.x.y/}
+
+If more than 10 minutes have past, and still no IP number is visible in the routers connection
+list, take out the power cable (from the gateway, not the mains) and reconnect. Occasionally it
+can happen dat DHCP server and client misunderstand each other. Do not try multiple reconnections 
+of the power quickly in a row, this can damage the internal file system.
+
+Apart from browsing to the webserver of the gateway, one can also login to the gateway using ssh.
+
+\section{Basic configuration}
+Although the gateway runs out of the box, further configuration may be required. 
+Besides that, all gateways come with the same predefined root password, which is a potential 
+security issue, and thus this must be changed. Furthermore, you may want to change the routers 
+to which all data is send.
+
+\subsection{Default routers}
+The current version of the software allows for maximally four routers to be configured as 
+targets for the data. Note that, in order for the service to actually start, {\bf all} 
+these routers  must exist, although they do no have to accept the data. This is a shortcoming 
+of all current packet forwarders, which we expect to be lifted in the next version. 
+Per default we have configured the following targets in the global configuration file:
+\begin{itemize}
+\item {\bf Semtech}: This company hosts a router that all gateways may utilise for demonstration purposes,
+see \url{www.semtech.com} for more information. 
+\item {\bf The Things Network}: This is a crowd sourced IOT network, open for anyone to use, see 
+\url{www.thethingsnetwork.org} for more information.
+\item {\bf Loraley}: The is an alternative distributed open source IOT data network, about to be 
+launched  in the coming months, see \url{www.loraley.org} for more information.
+\end{itemize}
+Please feel free to use one or more of the preinstalled routers or direct the data to your
+own private network. Note that, in the future, these url's may change and thus this may require
+further attention. Consult the websites of the organisations you want to make
+use of first.
+
+\subsection{The Gateway ID}
+If the gateway is part a larger network (when not operated privately) it must identify itself 
+using an eight byte {\bf worldwide} unique identifier. The device comes with such a number 
+preconfigured, starting with `1DEE'. This number is stored in the files \url{gatewayID}
+and in \url{local_conf.json} located in the directory that also contain the executables.
+
+It is possible to change this identifier manually if
+needed, just by editing these files (see below how). However, if the device is to be operated on
+other networks such as The Things Network, we
+advise not to do so, or to make sure to choose an identifier that is guaranteed to be globally
+unique. In practice the only reliable way to ensure this is to construct it based on machine generated
+random numbers. In any case do {\bf not} choose something based on any name, simple sequences 12345
+or something alike. At this moment there are not a lot of gateway's active around the world, 
+so it may not lead to problems immediately, but this will certainly change in the near future.
+Dataloss or impossibility to reach your nodes may be the consequence.
+
+
+\subsection{Configuration parameters}
+Depending on the packet forwarder you run (per default, the poly forwarder is running),
+you can set several parameters. Below find an overview, together  with their meaning and
+default setting. There are more, but these are beyond the scope of this manual. The
+relevant ones are:
+
+\smaller[2]
+\begin{verbatim}
+/* Devices */
+"gps"         : true      /* Indicate if you want to include (static) gps coordinates in the stream. */
+"monitor"     : false     /* If you have monitor software running, activate connection. */
+"upstream"    : true      /* Set to true if you want to be able to receive data from the nodes. */
+"downstream"  : true      /* Set to true if you want to be able to send data to the nodes. */
+"ghoststream" : false     /* Set to true if you have a fake packet generator running */
+"radiostream" : true      /* Set to true if you have a concentrator connected */
+"statusstream": true      /* Set to true if you want to include status updates */
+
+/* Set a globally unique ID */
+"gateway_ID": "1DEE000000000000"  /* This number is globally unique for each device. */
+
+/* node server for basic packet server, used by basic packet server or when no other are available */
+"server_address": "iot.semtech.com"              /* domain name or ip server of netwerk server */
+"serv_port_up"  : 1680                           /* port for upstream data */
+"serv_port_down": 1680                           /* port for downstream data */ 
+       
+/* node servers for poly packet server (max 4 enabled), read by poly packet server only */
+"servers":
+[ { "server_address": "croft.thingsnetwork.org"  /* domain name or ip server of first netwerk server */
+    "serv_port_up"  : 1700                       /* port for upstream data */
+    "serv_port_down": 1701                       /* port for downstream data */ 
+    "serv_enabled"  : true }                     /* enable this server */
+  { "server_address": "amsterdam.loraley.org"    /* domain name or ip server of second netwerk server */
+    "serv_port_up"  : 1680                       /* port for upstream data */
+    "serv_port_down": 1681                       /* port for downstream data */ 
+    "serv_enabled"  : true } ]                   /* enable this server */
+                
+/* GPS configuration */
+"ref_latitude" : 0   /* Enter the latitude of the location your gateway is mounted */
+"ref_longitude": 0   /* Enter the longitude of the location your gateway is mounted */
+"ref_altitude" : 0   /* Enter the altitude of the location your gateway is mounted */
+
+/* Ghost configuration */
+"ghost_address": "127.0.0.1"     /* domain name or ip server of the ghost data server */
+"ghost_port"   : 1918            /* connection port for fake packets */ 
+
+/* Monitor configuration */      
+"monitor_address": "127.0.0.1"   /* domain name or ip server of the ghost data server */
+"monitor_port"   : 2008          /* connection port for machine controle */ 
+
+/* Informal data for status updates. */
+"platform"      : "*"                     /* Platform definition, put * for internal, max 24 chars. */
+"contact_email" : "operator@gateway.tst"  /* Email of gateway operator, max 40 chars */
+"description"   : "Update me"             /* Public description of this device, max 64 chars */
+
+
+\end{verbatim} 
+\larger[2]
+ 
+These options can be set in different manners, see the section below for the possibilities. 
+
+\subsection{Configuration with builtin the webserver}
+Planned for future versions, not available this release, please configure using SSH. 
+
+\subsection{Configuration with SSH over the command line.}
+Per default a SSH service runs on the gateway, making is possible to login and modify the 
+settings and software from the command line. The standard login credentials are:
+\begin{verbatim}
+  account: root
+ password: LorankAdmin
+\end{verbatim}
+You can login with ssh with the command ``{\bf ssh root@lorank8}'' or ``{\bf ssh root@[IP number]}''.
+The first action to take is to change the root password into something personal:
+\begin{verbatim}
+ lorank8 # passwd 
+  (current) password: LorankAdmin
+  Enter new password: ***********  [Type something sensible]
+ Retype new password: ***********  [Retype your password] 
+\end{verbatim}
+Please make {\bf sure} you remember or write down this password. If forgotten, the gateway
+cannot be enterend again, Ideetron does {\bf not} have any means of recovery. 
+The only solution in that situation would be a complete 
+reinstall of the Beagle Bone and subsequent installation of Lorank gateway 
+software. This is a process requiring expert skills. See \url{http://beagleboard.org} 
+and \url{https://github.com/Ideetron} for more information.
+
+The Lorank software is located in the root directory for convenience. Usually there are
+three directories. One build directory, something like `lorank-v1.0.4', a system directory
+called `Lorank', and a platform dependent working directory that contains the executables and
+setting files for your platform. This is called `Lorank8v1' or something alike. The work
+directory contains the executables needed to run the gateway as well as its configuration files.
+These files are called \url{global_conf.json} and \url{local_conf.json}. Entries in the
+latter file supersede the ones in the former. Although the files end in `.json', they are
+not JSON files in a strikt sense. However, if you do edit these files, make sure you
+adhere to the format used, for otherwise the forwarder will not be able to run.
+Standard editing tools like \url{nano} and \url{vi} are available on the platform,
+for example
+\begin{verbatim}
+  nano global_conf.json
+\end{verbatim}
+Make your changes using the arrow keys (mouse does not work) and save with \^{}O
+(control-O), exit with \^{}X (control-X).
+
+Per default, the poly forwarder is running in the background. Output is send to the 
+system logger. If you want to experiment, it is better to test the forwarder in the
+foreground. In that case, the background must be stopped first. The configuration files are
+only read at the start of the forwarder.
+
+The background forwarder can managed using the following commands:
+\begin{verbatim}
+  systemctl start lorank.service
+  systemctl stop lorank.service
+  systemctl restart lorank.service
+  systemctl status lorank.service
+\end{verbatim}
+
+To enable or disable the forwarder startup at boottime use the commands:
+\begin{verbatim}
+  systemctl enable lorank.service
+  systemctl disable lorank.service
+\end{verbatim}
+ 
+ 
+ 
+To test a forwarder in the foreground, for example after you have changed
+some configuration parameters, simply stop the background forwarder en 
+start the new forwarder in the foreground like this:
+\begin{verbatim}
+  systemctl stop lorank.service
+  ./poly_pkt_fwd
+\end{verbatim}
+The output will be put directly on screen, so you can see if the new configuration
+performs as expected. If so, stop it with \^{}C (control-C) and reactivate the 
+background forwarder.
+\begin{verbatim}
+  ^C
+  systemctl start lorank.service
+\end{verbatim}
+
+All logging of the service is written to \url{/var/log/syslog}, so
+to see what is happening under the hood, check, for example the last 
+200 lines in this file with:
+\begin{verbatim}
+  tail -n 200 /var/log/syslog
+\end{verbatim}
+ 
+
+\subsection{Via SSH using PuTTY.}
+No version of Windows OS contain the SSH utility out of the box. So the 
+best way to log into the gateway is making use of PuTTY, which can be 
+found here: \url{http://www.putty.org/}.   
+
+
+\section{Hardware}
+The gateway is build upon the Concentrator Board of IMST iC880A and a
+recent Beagle Bone Board. The latter is completely open source hard- and software, 
+see \url{http://beagleboard.org} for more information. In 
+between a connection board has been placed. The Beagle Bord's usb is accessible
+from the outside and may not be loaded with more that 500 mA.
+
+
+\section{Software}
+
+\subsection{Location}
+All software is opensource and can be found on the Github of Ideetron:
+\url{https://github.com/Ideetron}. There are three main repositories
+that are relevant
+\begin{verbatim}
+  https://github.com/Ideetron/Lorank
+  https://github.com/Ideetron/packet_forwarder
+  https://github.com/Ideetron/lora_gateway
+\end{verbatim}
+Beware however, that at the time of reading these may have different names, be moved
+or there may be added repositories. Please read the latest README's in the 
+repositories. 
+
+\subsection{Installation}
+The gateway come preinstalled. However it can be necessary to reinstall or upgrade
+the software. Complete reinstallation is a delicate procedure that requirers 
+experience with embedded systems. Although the command sequence is easy, differences
+between platforms may cause serious trouble. Therefore we strongly discourage this
+procedure in general, and is given here only for completeness. The least you should
+do before exercising this is read the scripts called. If there is anything in there
+you do not understand, please do not move forward. 
+\begin{verbatim}
+  ./Lorank/lorank8v1/wipe   
+  git clone https://github.com/Ideetron/Lorank.git; 
+  ./Lorank/install lorank8v1 1.2.3
+\end{verbatim}
+Note that \url{wipe} {\bf completely removes all Lorank software and settings}.
+Replace \url{1.2.3} with the software version you want to install. These can
+be found as releases on Github.
+
+\subsection{Upgrade}
+All executables are installed and build form source using git, so this can
+be used to upgrade as well. It is also possible, and a maybe safer if you are
+not comfortable with git to install a new version of the 
+software. This does not remove your old version, so if something goes wrong,
+you can revert. Still, some level of expertise is needed here, should something 
+go wrong. Basically the steps are (in the directory \url{/root})
+\begin{verbatim}
+  cp -r lorank8v1 lorank8v1.backup
+  ./Lorank/lorank8v1/upgrade 1.2.3  
+\end{verbatim}
+If no release version is provided the most recent code is used. Usually this is not
+a good idea, since this code is under heavy development. Please use the latest
+{\bf release version} as can be found on Github. The new version is installed in a
+separate directory and the executables are copied to the working directory.
+Since the former version stays on your system, you can revert by manually
+coping those back to the working directory. An other, simpler solution is to
+make a backup of the working directory, as is done above.
+When performing the upgrade, the \url{global_conf.json} is replaced, the old one 
+saved as \url{global_conf_old.json} in the same directory. 
+The \url{local_conf.json} is not touched because it contains your Gateway 
+Unique Identifier. Usually some merging of the old en new \url{global_conf} file
+is needed. This must be performed by hand. Please first test the new software 
+and its configuration before putting it into production.
+Should you be on an older version (prior to 0.1.5) that does not have the 
+upgrade script yet, please update that first using git:
+\begin{verbatim}
+  cd Lorank
+  git checkout master
+  git pull
+  cd ..  
+\end{verbatim}
+and then proceed as above. 
+
+\section{Operation}
+
+\subsection{Antenna}
+{\bf\textcolor{red}{Warning}}: Never operate the gateway without a properly mounted antenna.
+If not mounted the energy meant for transmission reflects back into the
+device and immediately destroy the input stages. The gateway will be 
+damaged beyond repair.
+
+\subsection{Always on}
+The Lorank is designed for 24/7 operation, provided a few precautions are
+taken. Do not place the device into direct sunlight (be aware of the 
+change of sunlight during the day), near heaters or in conditions of 
+condensing moisture. The  Lorank is best mounted on a high location 
+for optimal reception, away from metal objects. Mount the device such 
+that the antenna points upwards.  The casing should at least be free 
+on two of the sides so that the heat produced is sufficiently drained.
+Other transmitters such as Lora Nodes, WiFi stations and cellphones 
+should at least be at two meters distance from the Lorank to prevent
+damage to its highly sensitive input amplifiers. 
+
+Occasionally the server that accepts your data may stop doing so, even
+while the packets are send from the gateway without interruption. 
+This can happen for instance when a crash happens serverside or a firewall
+that is in the pathway is reinitialised. Unfortunately, the gateway is 
+not informed of such an event, and the only option for now is to restart
+your gateway. See above how this can be done. We expected this
+problem to disappear as the software in the whole chain gets more
+mature over time.  
+
+\subsection{Shutting down}
+The Lorank does not have a power switch, so it seems natural to simply
+`pull the plug' it when it has to be switched off. Although this is 
+possible, and will not directly do harm it is better to login into 
+the gateway via SSH, as described above and bring the gateway down 
+in an orderly fashion. This can be done with the command:
+\begin{verbatim}
+  shutdown -h now
+\end{verbatim}
+The gateway will start a shutdown procedure and after approximately 
+30 seconds all leds should be off. Restarting can be done by
+simply disconnecting and reconnecting the power cable.
+
+
+\section{Specifications}
+
+\begin{verbatim}
+Hardware:
+- Frequency band        : 868 MHz
+- Sensitivity           : -138 dBm
+- Maximum power         : 27 dBm (500mW)
+- LoRa demodulators     : 49
+- Simultaneous channels : 8
+- Max connected nodes   : ~60 thousand (*)
+- Processor             : 1GHz, ARM Cortex A8
+- OS                    : Debian / Angstrom Linux
+- Wifi                  : Optional (via usb)
+- Current               : 1A
+- Max Current USB       : 500mA [USB is internal]
+- Power Adapter         : 5Volt= , 2Amp 
+
+(*) This is a theoretical maximum, under the assumption that nodes
+    only send once per hour. Due to collisions, resend packets, packet
+    loss etc, the number of nodes that can effectively be handled is
+    lower, typically 10..20 thousand. 
+\end{verbatim}
+
+\begin{verbatim}
+Software:
+- Lora libraries         : Semtech, with modifications from Beta Research BV
+- basic packet forwarder : Semtech, 
+- poly packet forwarder  : Beta Research BV, based on code from Semtech
+- Installation scripts   : Beta Research BV
+- Beagle Bone            : Various, see website beagle board.
+\end{verbatim}
+
+\section{Maintenance}
+The Lorank does not need special maintenance. In case the device fails,
+and this failure cannot be attributed to incorrect handling, please
+contact Ideetron.
+ 
+\section{Disposal}
+This is an electronic device, and disposal should be in accordance with
+local environmental regulations.
+
+\section{Legal}
+Ideetron can in no way be held responsible for
+malfunctions and/or damage resulting from the
+information presented in this document. 
+
+
+\section{Questions and Answers.}
+
+\begin{description}
+
+\item[My gateway ID starts with 1DEE, why is that?] 
+All gateways from Ideetron are preconfigured with an eight byte unique
+ID starting with `1DEE' augmented with six randomly chosen bytes. This is 
+to make the gateway easily recognisable in the (long) list of gateways at 
+for example Semtech. This prefix is not registered anywhere, and you are 
+completely free to change it to  your linking. If you keep the rest of 
+the ID unchanged you can be reasonably sure the ID stays unique. 
+
+\item[Are there any local tools to test my gateway?]
+The gateway comes with some precompiled tools from Semtech, which
+can be used for testing purposes. These can be found in the directories 
+that match \url{/root/lorank8-[version_number]/lora_gateway/util_*}. Please see the
+\url{readme.md} file therein for further instructions. Ideetron cannot provide
+instructions for operation or guarantee for their quality of operation.
+
+\item[How do I setup a server within my network to catch packets?]
+If you want to receive packets on your own computer you need to set up
+a router backend yourself. Or maybe you want to simulate the existence
+of many node to test your setup. To that end download and compile the
+lora\_simulator tools on the github of The Things Network:
+\url{https://github.com/TheThingsNetwork/lora_simulator}.
+
+
+
+\end{description}
+
+
+\end{document} 
+
+
+
+
+
+
+
+
+
+

@@ -44,6 +44,12 @@ then
   mv /var/lib/cloud9/indexORG.html /var/lib/cloud9/index.html
 fi
 
+if [ -e /usr/local/lib/node_modules/bonescript/index.js.ORG ]
+then 
+  rm -f /usr/local/lib/node_modules/bonescript/index.js
+  mv /usr/local/lib/node_modules/bonescript/index.js.ORG /usr/local/lib/node_modules/bonescript/index.js
+fi
+
 # Remove Lorank startup services 
 systemctl stop lorank.service
 systemctl disable lorank.service

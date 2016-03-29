@@ -58,6 +58,8 @@ mkdir -p /var/lib/cloud9/images
 mv /var/lib/cloud9/index.html /var/lib/cloud9/indexORG.html
 cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
 cp Lorank/$TARGETDIR/photo.jpg  /var/lib/cloud9/images/
+mv cp /usr/local/lib/node_modules/bonescript/index.js /usr/local/lib/node_modules/bonescript/index.js.ORG
+patch /usr/local/lib/node_modules/bonescript/index.js Lorank/$TARGETDIR/index.js.patch
 
 # Generate a key-pair so you can enable remote maintenance
 if [ ! -e /root/.ssh/id_rsa ] 

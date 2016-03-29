@@ -1,0 +1,25 @@
+#!/bin/bash
+
+LOCCONF="/root/lorank8v1/local_conf.json"
+
+if   [[  $1 == "DoShutdown"    ]]; then shutdown -h now && echo "Shutting down ...";
+elif [[  $1 == "DoReboot"      ]]; then reboot && echo "Rebooting ... ";
+elif [[  $1 == "DoStartConc"   ]]; then systemctl start lorank.service && echo "Starting Concentrator ... ";
+elif [[  $1 == "DoStopConc"    ]]; then systemctl stop lorank.service && echo "Stopping Concentrator ... ";
+elif [[  $1 == "DoClearStats"  ]]; then echo "DoClearStats";
+elif [[  $1 == "DoCheckUpdate" ]]; then echo "DoCheckUpdate";
+elif [[  $1 == "DoUpdate"      ]]; then echo "DoUpdate";
+elif [[  $1 == "GetStatus"     ]]; then systemctl status lorank.service | grep "Active:";
+elif [[  $1 == "GetSysDate"    ]]; then date;
+elif [[  $1 == "GetStats"      ]]; then echo "GetStats";
+elif [[  $1 == "GetSysInfo"    ]]; then echo $(cat /proc/uptime)";"$(cat /proc/loadavg)";"$(date);
+elif [[  $1 == "GetLogs50"     ]]; then tail -n 50 /var/log/syslog;
+elif [[  $1 == "GetLogs200"    ]]; then tail -n 200 /var/log/syslog;
+elif [[  $1 == "GetLogsOn"     ]]; then tail -f /var/log/syslog; 
+elif [[  $1 == "GetLogsOff"    ]]; then killall tail;
+elif [[  $1 == "GetDiskfree"   ]]; then df -BM -t rootfs | tail -n +2 | tr -s ' ' ;
+elif [[  $1 == "GetConf"       ]]; then cat $LOCCONF | sed -r ':a; s%(.*)/\*.*\*/%\1%; ta; /\/\*/ !b; N; ba';
+elif [[  $1 == "SetConf"       ]]; then echo -n $2 > $LOCCONF && echo "Updating local_conf.json ...";
+else logger -s "ERROR: lorankctl received unknown command: $1"
+fi
+

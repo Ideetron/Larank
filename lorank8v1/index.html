@@ -1,35 +1,335 @@
+<!DOCTYPE html>
+
+<!--
+  Copyright (c) 2016, Beta Research BV (Ruud Vlaming). All rights reserved. 
+  Use of this source code is governed by a GPL-v3 license.
+-->
+
 <html>
 <head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorank 8</title>
+    <link href="static/bs/css/bootstrap.min.css" rel="stylesheet">
+    <script src="static/jquery-1.12.2.min.js"></script>
+    <script src="static/bs/js/bootstrap.min.js"></script>
+    <script src="static/bonescript.js" charset="UTF-8"></script>
+    <script> setTargetAddress(location.host,{})</script> 
 
-  <script type="text/javascript" src="/static/jquery.js" charset="UTF-8"></script>
-  <script type="text/javascript" src="/static/bonescript.js" charset="UTF-8">
-  </script>
+  <style type="text/css">
+  pre { height: 500px; }
+  .front 
+  { width: 120px;
+    display: inline-block; }
+  .back 
+  { flex:1; }
+  </style>
+  
   <script>
-  setTargetAddress(location.host,{})
-  </script>
-  <script>
-  function getit() {
-    var bone = require('bonescript');
-    bone.readTextFile('/root/lorank8v1/gatewayID',printData);
-    function printData(x) { document.getElementById('demo').innerHTML = x.data; } }
+  var concentratorRunning = true;
+  var configuration = {};
+  var fastTimer = setTimeout(fastLoop,1000)
+  function fastLoop()
+  { fastTimer = setTimeout(fastLoop,5051)
+    upTime(); 
+    getStatus(); }
+  var slowTimer = setTimeout(slowLoop,1500)
+  function slowLoop()
+  { slowTimer = setTimeout(slowLoop,60033)
+    diskFree(); }
+    
+    
+  function getValue(id)         { return document.getElementById(id).value;}  
+  function setValue(id,val)     { document.getElementById(id).value=val;}  
+  function setHTML(id,val)      { document.getElementById(id).innerHTML = val; }
+  function setText(id,val)      { $("#"+id).text(val); }
+  function setClass(id,val)     { document.getElementById(id).className=val; }
+  function addClass(id,val)     { document.getElementById(id).classList.add(val); }
+  function delClass(id,val)     { document.getElementById(id).classList.remove(val); }
+  function setProgress(id,val)
+  { $("#"+id).attr("aria-valuenow",val); 
+    $("#"+id).attr("style","width: "+val); 
+    $("#"+id).text(val); }
+
+  function footerClean() 
+  { delClass("footerText","alert-danger")
+    delClass("footerText","alert-succes")
+    addClass("footerText","alert-info")
+    setHTML("footerText",""); } 
+
+  function footerMessage(message,isError,timeout)
+  { setHTML("footerText",message);  
+    if (isError) switchClass(false,"footerText","alert-info","alert-danger");
+    else         switchClass(false,"footerText","alert-info","alert-success");
+    setTimeout(footerClean,timeout*1000); }
+  
+  function switchClass(cond,id,trueCl,falseCl) 
+  { if (cond) 
+    { delClass(id,falseCl);
+      addClass(id,trueCl); }
+    else 
+    { delClass(id,trueCl);
+      addClass(id,falseCl); } }
+      
+  function setState(id,enabled) { if (enabled) delClass(id,"disabled"); else addClass(id,"disabled"); }
+  
+  function hide(name)           { addClass(name,"hidden"); }
+  function show(name)           { delClass(name,"hidden"); }
+  function actStatus() 
+  { setClass("menuStatus","active"); show("statusWell");
+    setClass("menuAdmin","");        hide("adminWell");
+    setClass("menuLogs","");         hide("logsWell"); } 
+  function actAdmin() 
+  { setClass("menuStatus","");       hide("statusWell");
+    setClass("menuAdmin","active");  show("adminWell");
+    setClass("menuLogs","");         hide("logsWell"); }
+  function actLogs()  
+  { setClass("menuStatus","");       hide("statusWell");  
+    setClass("menuAdmin","");        hide("adminWell"); 
+    setClass("menuLogs","active");   show("logsWell"); }
+
+  function humanTime(t)
+  { function c(x) { return x.toFixed(0).toString(); }
+    if (t<60)           { return c(t)+" seconds"; }
+    else if (t<3600)    { return c(t/60)+" minutes"; }
+    else if (t<172800)  { return c(t/3600)+" hours"; }
+    else                { return c(t/86400)+" days"; } }
+  function toPercent(x) { return (x*100).toFixed(0).toString()+"%"; }
+
+  function setConcentratorRunning(value)
+  { if (value != concentratorRunning) 
+    { concentratorRunning = value;
+      switchClass(concentratorRunning,"statusInfo","alert-success","alert-danger"); } }
+  
+  function callback(proc)
+  { return function(x) 
+    { if (x.stdout)   proc(x.stdout);
+      if (x.stderr)   footerMessage(x.stderr,true,10);
+      if (x.error)    footerMessage(x.error,true,10); } }
+    
+  function diskFree() 
+  { function proc(x) { setProgress("diskfreeProgbar",x.split(" ")[4]); }
+    require('bonescript').lorankctl('GetDiskfree',callback(proc)); }
+      
+  function upTime()
+  { function proc(x)
+    { var vp = x.split(";");
+      var uptime = humanTime(vp[0].split(" ")[0]);
+      var loadAve = toPercent(vp[1].split(" ")[0]);  
+      var localDate = vp[2];
+      setProgress("cpuloadProgbar",toPercent(vp[1].split(" ")[0]));
+      setText("localtimeInfo",vp[2]);
+      setText("uptimeInfo",humanTime(vp[0].split(" ")[0])); }    
+    require('bonescript').lorankctl('GetSysInfo',callback(proc)); }
+    
+  function getLogging(size)
+  { setText("loggingPanel","Waiting ... ");
+    function proc(x)
+    { setText("loggingPanel",x); }
+     require('bonescript').lorankctl("GetLogs"+size,callback(proc)); } 
+
+  function getStatus()
+  { function proc(x)
+    { setText("statusInfo","Concentrator status"+x.slice(x.indexOf(":"))); 
+      setConcentratorRunning(x.indexOf("(running)")>0); }
+    require('bonescript').lorankctl("GetStatus",callback(proc)); }
+
+  function getConf()
+  { function proc(x)
+    { configuration = JSON.parse(x);
+      setValue("GatewayIDInput",configuration.gateway_conf.gateway_ID);
+      setValue("DescriptionInput",configuration.gateway_conf.description);
+      setValue("ContactEmailInput",configuration.gateway_conf.contact_email);
+      setValue("GPSlatitudeInput",configuration.gateway_conf.ref_latitude);
+      setValue("GPSlongitudeInput",configuration.gateway_conf.ref_longitude);
+      setValue("GPSaltitudeInput",configuration.gateway_conf.ref_altitude);}
+    require('bonescript').lorankctl("GetConf",callback(proc)); }
+    
+    
+  function simpleAction(command)
+  { function proc(x) { footerMessage(x,false,5); }
+    require('bonescript').lorankctl(command,callback(proc)); }
+  
+  function isBasicStr(str,maxlen)
+  { return (str.length<=maxlen) && (str.indexOf("'")<0) && (str.indexOf('"')<0) }
+  
+
+  function checkGatewayID()
+  { var gwid = getValue("GatewayIDInput").replace(/[ \.]/g,"")
+    var succes = (gwid.length==16) && (/[0-9a-fA-F]{16}/.test(gwid));
+    switchClass(succes,"GatewayIDInput","bg-success","bg-danger"); 
+    return succes; }
+
+  function checkDescription()
+  { var succes = isBasicStr(getValue("DescriptionInput"),64);
+    switchClass(succes,"DescriptionInput","bg-success","bg-danger"); 
+    return succes; }
+    
+  function checkContactEmail()
+  { var email = getValue("ContactEmailInput")
+    var succes = (email.length==0) || isBasicStr(email,40) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
+    switchClass(succes,"ContactEmailInput","bg-success","bg-danger"); 
+    return succes; }
+
+  function checkGPScoor(id,maxval)
+  { var gps    = getValue(id);
+    var coor   = parseFloat(gps);
+    var succes =  (gps.length==0) || ( isBasicStr(gps,20) && (gps.indexOf(",")<0) && (!isNaN(coor)) && (Math.abs(coor)<=maxval) );
+    switchClass(succes,id,"bg-success","bg-danger"); 
+    return succes; }
+
+  function checkGPSlatitude()  { return checkGPScoor("GPSlatitudeInput",90);    }
+  function checkGPSlongitude() { return checkGPScoor("GPSlongitudeInput",180);  }
+  function checkGPSaltitude()  { return checkGPScoor("GPSaltitudeInput",10000); }
+    
+  function checkAll()
+  { return checkGatewayID() && checkDescription() && checkContactEmail() && 
+           checkGPSlatitude() && checkGPSlongitude() && checkGPSaltitude(); } 
+
+  function checkConf() { return !(typeof configuration.gateway_conf == 'undefined'); }
+
+  function makeID()
+  { function blok() { return " " + ("000"+Math.floor(Math.random()*65536).toString(16)).substr(-4); }
+    setValue("GatewayIDInput","1dee" + blok() + blok() + blok());
+    checkGatewayID(); }
+  
+  function updateConf()
+  { function proc(x) { footerMessage(x,false,10); }
+    if (concentratorRunning)  footerMessage("Cannot update while concentrator is running.",true,5);
+    else if (!checkConf())    footerMessage("No configuration to update.",true,5);  
+    else if (!checkAll())     footerMessage("Some fields are invalid.",true,5); 
+    else 
+    { configuration.gateway_conf.gateway_ID     = getValue("GatewayIDInput");
+      configuration.gateway_conf.description    = getValue("DescriptionInput");
+      configuration.gateway_conf.contact_email  = getValue("ContactEmailInput") ;
+      configuration.gateway_conf.ref_latitude   = parseFloat(getValue("GPSlatitudeInput"));
+      configuration.gateway_conf.ref_longitude  = parseFloat(getValue("GPSlongitudeInput"));
+      configuration.gateway_conf.ref_altitude   = parseFloat(getValue("GPSaltitudeInput"));
+      var str=JSON.stringify(configuration);
+      require('bonescript').lorankctl("SetConf|"+str,callback(proc));
+      } }
+
   </script>
 </head>
+<br/>
 <body>
+   <div class="container-fluid">
 
-<table>
-<tr colspan=2>
-  <td> <center> <h1>Lorank 8</h1> </center> </td>
-</tr>
-<tr>
-  <td>
-    <img 
-      alt="Photo of Lorank8." 
-      src="/images/photo.jpg" width=240px>
-  </td>
-  <td>
-<button type="button" onclick="getit()"> Click me to get Gateway ID </button>
-  <p id="demo"></p>
-  </td>
-</tr>
-</table>
+<div class="well">
+  <ul class="nav nav-pills">
+    <li id="menuStatus" role="presentation" class="active"><a href="#" onclick="actStatus()">Status</a></li>
+    <li id="menuAdmin"  role="presentation" class=""><a href="#" onclick="actAdmin()">Admin</a></li>
+    <li id="menuLogs"   role="presentation" class=""><a href="#" onclick="actLogs()">Logs</a></li>
+  </ul>
+</div>
+
+
+<div id="statusWell" class="well">
+  <div id="statusInfo" class="alert alert-success" role="alert"> Waiting ... </div>
+  <div style="display:flex">
+    <div class="front">Disk Usage</div>
+    <div class="progress back">
+      <div id="diskfreeProgbar" class="progress-bar" role="progressbar" aria-valuenow="60" aria-valuemin="0" aria-valuemax="100" style="width: 50%;">Waiting ....</div>
+    </div>
+  </div>
+  <div style="display:flex">
+    <div class="front">Work Load</div>
+    <div class="progress back">
+      <div id="cpuloadProgbar" class="progress-bar" role="progressbar" aria-valuenow="10" aria-valuemin="0" aria-valuemax="100" style="width: 50%;">Waiting ....</div>
+    </div>
+  </div>
+  <div style="display:flex">
+    <div class="front">Local Time</div>
+    <div id="localtimeInfo" class="back"> Waiting ... </div>
+  </div>
+  <br>
+  <div style="display:flex">
+    <div class="front">Uptime</div>
+    <div id="uptimeInfo" class="back"> Waiting ... </div>
+  </div>
+</div>
+
+
+
+
+<div id="adminWell" class="well hidden">
+  
+  <!-- Statistics and  Updates have not been implemented yet. -->
+  <button type="button" class="btn btn-info hidden">Clear Statistics</button>
+  <button type="button" class="btn btn-info hidden">Check for Updates</button> 
+  <button type="button" class="btn btn-info" onclick="simpleAction('DoStartConc')">Start Concentrator</button>
+  <button type="button" class="btn btn-warning" onclick="simpleAction('DoStopConc')">Stop Concentrator</button>
+  <button type="button" class="btn btn-danger" onclick="simpleAction('DoReboot')">Reboot Lorank</button> 
+  <button type="button" class="btn btn-danger" onclick="simpleAction('DoShutdown')">Shutdown Lorank</button> 
+  
+  <br/><hr/><br/>
+
+  <div style="display:flex">
+    <div class="front">Gateway ID</div>
+    <input class="back" id="GatewayIDInput" onkeyup="checkGatewayID()">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">Description</div>
+    <input class="back" id="DescriptionInput" onkeyup="checkDescription()">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">Contact email</div>
+    <input class="back" id="ContactEmailInput" onkeyup="checkContactEmail()">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">GPS latitude</div>
+    <input class="back" id="GPSlatitudeInput" onkeyup="checkGPSlatitude()">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">GPS longitude</div>
+    <input class="back" id="GPSlongitudeInput" onkeyup="checkGPSlongitude()">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">GPS altitude</div>
+    <input class="back" id="GPSaltitudeInput" onkeyup="checkGPSaltitude()">
+  </div>
+  <br/>
+ 
+  <button id="getConfBtn" type="button" class="btn btn-info" onclick="getConf()">Get Configuration</button> 
+  <button id="makeIDBtn" type="button" class="btn btn-info" onclick="makeID()">Make New ID</button> 
+  <button id="setConfBtn"  type="button" class="btn btn-warning" onclick="updateConf()">Update Configuration</button> 
+
+</div>
+  
+<div id="logsWell" class="well hidden">
+
+ <button type="button" class="btn btn-info" onclick="getLogging('50')">Get last 50 lines</button>
+ <button type="button" class="btn btn-info" onclick="getLogging('200')">Get last 200 lines</button>
+ <!-- following butons can leave processes running on Lorank, disable for now -->
+ <button type="button" class="btn btn-info hidden" onclick="getLogging('On')">Follow On</button>
+ <button type="button" class="btn btn-info hidden" onclick="getLogging('Off')">Follow Off</button>
+ <br/>
+ <br/>
+ <div  class="panel panel-info">
+
+  <div class="panel-heading">Last logs</div>
+  <div  class="panel-body">
+  <pre id="loggingPanel"> </pre> 
+ 
+  </div>
+  </div>
+
+</div>
+
+<div id="footerWell" class="well">
+  <div id="footerText" class="alert alert-info" role="alert"></div>
+</div>
+
+
+</div>
+
+        
 </body>
+</html>
+

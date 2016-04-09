@@ -30,24 +30,28 @@ rm -rf Lorank
 rm -rf lorank*
 
 # Restore the boot environment 
-if [ -e /boot/uboot/uEnvORG.txt ]
+if [ -e /root/savesys/boot_uEnv.txt ]
 then 
-  rm -f /boot/uboot/uEnv.txt
-  mv /boot/uboot/uEnvORG.txt /boot/uboot/uEnv.txt
+  cp -af /root/savesys/boot_uEnv.txt /boot/uEnv.txt
 fi
 
+if [ -e /root/savesys/boot_uboot_uEnv.txt ]
+then 
+  cp -af /root/savesys/boot_uboot_uEnv.txt /boot/uboot/uEnv.txt
+fi
+
+
 # Restore the webpage
-if [ -e /var/lib/cloud9/indexORG.html ]
+if [ -e /root/savesys/cloud9_index.html ]
 then 
   rm -f /var/lib/cloud9/index.html
   rm -f /var/lib/cloud9/images/photo.jpg
-  mv /var/lib/cloud9/indexORG.html /var/lib/cloud9/index.html
+  cp -af /root/savesys/cloud9_index.html /var/lib/cloud9/index.html
 fi
 
-if [ -e /usr/local/lib/node_modules/bonescript/index.js.ORG ]
+if [ -e /root/savesys/bonescript_index.js ]
 then 
-  rm -f /usr/local/lib/node_modules/bonescript/index.js
-  mv /usr/local/lib/node_modules/bonescript/index.js.ORG /usr/local/lib/node_modules/bonescript/index.js
+  cp -af /root/savesys/bonescript_index.js /usr/local/lib/node_modules/bonescript/index.js
 fi
 
 # Remove Lorank startup services 

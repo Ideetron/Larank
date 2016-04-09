@@ -23,6 +23,9 @@ then
   exit 1
 fi
 
+# Make dir for the system files we are about to modify
+mkdir -p /root/savesys
+
 # Make the Lorank platform specific software 
 pushd Lorank/$TARGETDIR
 g++ -O2 -Wall ResetIC880A.cpp -o ResetIC880A
@@ -35,11 +38,11 @@ systemctl enable lorank.service
 # Disable HDMI on the BBB
 if [ -e /boot/uEnv.txt ] 
 then 
-  cp /boot/uEnv.txt /boot/uEnvORG.txt
+  cp -a /boot/uEnv.txt /root/savesys/boot_uEnv.txt
   patch /boot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
 elif [ -e /boot/uboot/uEnv.txt ] 
 then
-  cp /boot/uboot/uEnv.txt /boot/uboot/uEnvORG.txt
+  cp -a /boot/uboot/uEnv.txt /root/savesys/boot_uboot_uEnv.txt
   patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
 else
   echo "Could not patch uEnv.txt"
@@ -55,10 +58,10 @@ sed -i "s/$BBBNAME/$NEWNAME/" /etc/hosts
 
 # Load a basic webpage
 mkdir -p /var/lib/cloud9/images
-mv /var/lib/cloud9/index.html /var/lib/cloud9/indexORG.html
+mv /var/lib/cloud9/index.html /root/savesys/cloud9_index.html
+mv /usr/local/lib/node_modules/bonescript/index.js /root/savesys/bonescript_index.js
 cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
 cp Lorank/$TARGETDIR/photo.jpg  /var/lib/cloud9/images/
-mv cp /usr/local/lib/node_modules/bonescript/index.js /usr/local/lib/node_modules/bonescript/index.js.ORG
 patch /usr/local/lib/node_modules/bonescript/index.js Lorank/$TARGETDIR/index.js.patch
 
 # Generate a key-pair so you can enable remote maintenance

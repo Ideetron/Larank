@@ -2,10 +2,18 @@
 
 # Test the connection, wait if needed.
 while [[ $(ping -c1 google.com 2>&1 | grep " 0% packet loss") == "" ]]; do
-  echo "lorank: waiting for internet connection ... "
+  echo "Concentrator: waiting for internet connection ... "
   sleep 30
   done
 
+# Test if the time has already been set, wait if needed, but not for ever.
+CNT=10
+while [[ $(date | cut -d' ' -f 7) -lt 2016 ]] && [[ $CNT -gt 0 ]]; do
+  echo "Concentrator: waiting for clock to be set, ($CNT) ... "
+  let CNT=CNT-1
+  sleep 15
+  done
+ 
 # Reset the concentrator board and fire up the forwarder.  
 ./ResetIC880A  
 ./poly_pkt_fwd

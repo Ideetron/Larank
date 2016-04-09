@@ -59,7 +59,7 @@ sed -i "s/$BBBNAME/$NEWNAME/" /etc/hosts
 # Load a basic webpage
 mkdir -p /var/lib/cloud9/images
 mv /var/lib/cloud9/index.html /root/savesys/cloud9_index.html
-mv /usr/local/lib/node_modules/bonescript/index.js /root/savesys/bonescript_index.js
+cp /usr/local/lib/node_modules/bonescript/index.js /root/savesys/bonescript_index.js
 cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
 cp Lorank/$TARGETDIR/photo.jpg  /var/lib/cloud9/images/
 patch /usr/local/lib/node_modules/bonescript/index.js Lorank/$TARGETDIR/index.js.patch

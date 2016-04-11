@@ -72,8 +72,9 @@ fi
 
 # Localize files for off-line use
 wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css
+wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css.map
 wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js
-wget -nv -nc -P/var/lib/cloud9/static https://code.jquery.com/jquery-1.12.0.min.js
+wget -nv -nc -P/var/lib/cloud9/static https://code.jquery.com/jquery-1.12.2.min.js
 
 # Get the ngrok binairy for remote maintenance
 if [ ! -e /usr/bin/ngrok ] 

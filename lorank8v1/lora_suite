@@ -66,8 +66,9 @@ fi
 popd
 
 # Copy the executeables to the target location
-cp Lorank/$TARGETDIR/start $TARGETDIR/
+cp Lorank/$TARGETDIR/start       $TARGETDIR/
 cp Lorank/$TARGETDIR/ResetIC880A $TARGETDIR/
+cp Lorank/$TARGETDIR/lorankctl   $TARGETDIR/
 cp $BASEDIR/packet_forwarder/basic_pkt_fwd/basic_pkt_fwd $TARGETDIR/
 cp $BASEDIR/packet_forwarder/poly_pkt_fwd/poly_pkt_fwd $TARGETDIR/
 

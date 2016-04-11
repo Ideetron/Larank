@@ -91,7 +91,7 @@
 
   function humanTime(t)
   { function c(x) { return x.toFixed(0).toString(); }
-    if (t<60)           { return c(t)+" seconds"; }
+    if (t<60)           { return c(t/1)+" seconds"; }
     else if (t<3600)    { return c(t/60)+" minutes"; }
     else if (t<172800)  { return c(t/3600)+" hours"; }
     else                { return c(t/86400)+" days"; } }

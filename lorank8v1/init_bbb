@@ -12,13 +12,13 @@ set -e
 
 # Check if we start at the correct location
 if [ ! -d Lorank ]
-then 
+then
   echo "ERROR: Invalid working directory, does not contain the Lorank directory"
   exit 1
 fi
 
 if [ ! -d Lorank/$TARGETDIR/$DTSHORT ]
-then 
+then
   echo "ERROR: BBB Release not know, no initialization possible"
   exit 1
 fi
@@ -26,7 +26,7 @@ fi
 # Make dir for the system files we are about to modify
 mkdir -p /root/savesys
 
-# Make the Lorank platform specific software 
+# Make the Lorank platform specific software
 pushd Lorank/$TARGETDIR
 g++ -O2 -Wall ResetIC880A.cpp -o ResetIC880A
 popd
@@ -36,14 +36,14 @@ cp Lorank/$TARGETDIR/lorank.service /lib/systemd/system/
 systemctl enable lorank.service
 
 # Disable HDMI on the BBB
-if [ -e /boot/uEnv.txt ] 
-then 
+if [ -e /boot/uEnv.txt ]
+then
   cp -a /boot/uEnv.txt /root/savesys/boot_uEnv.txt
-  patch /boot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
-elif [ -e /boot/uboot/uEnv.txt ] 
+  patch /boot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch
+elif [ -e /boot/uboot/uEnv.txt ]
 then
   cp -a /boot/uboot/uEnv.txt /root/savesys/boot_uboot_uEnv.txt
-  patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch 
+  patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch
 else
   echo "Could not patch uEnv.txt"
   exit 1
@@ -65,8 +65,8 @@ cp Lorank/$TARGETDIR/photo.jpg  /var/lib/cloud9/images/
 patch /usr/local/lib/node_modules/bonescript/index.js Lorank/$TARGETDIR/index.js.patch
 
 # Generate a key-pair so you can enable remote maintenance
-if [ ! -e /root/.ssh/id_rsa ] 
-then 
+if [ ! -e /root/.ssh/id_rsa ]
+then
   ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
 fi
 
@@ -77,16 +77,23 @@ wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/
 wget -nv -nc -P/var/lib/cloud9/static https://code.jquery.com/jquery-1.12.2.min.js
 
 # Get the ngrok binairy for remote maintenance
-if [ ! -e /usr/bin/ngrok ] 
+if [ ! -e /usr/bin/ngrok ]
 then
-  wget -nv https://github.com/Ideetron/Lorank/raw/master/lorank8v1/ngrok_2.0.19.gz 
-  gunzip ngrok_2.0.19.gz 
+  wget -nv https://github.com/Ideetron/Lorank/raw/master/lorank8v1/ngrok_2.0.19.gz
+  gunzip ngrok_2.0.19.gz
   mv ngrok_2.0.19 /usr/bin/ngrok
   chmod u+x /usr/bin/ngrok
-fi   
+fi
+
+# Get the Loriot packet forwarder
+apt-get install -qq ca-certificates
+mkdir -p Lorank/Loriot/$TARGETDIR
+wget -nv -nc https://github.com/Ideetron/Lorank/raw/master/loriot_lorank_8_iC880A_SPI_1.0.1.tgz
+tar xf loriot_lorank_8_iC880A_SPI_1.0.1.tgz
+mv loriot_lorank_8_iC880A_SPI_1.0.1 loriot_pkt_fwd
 
 # Disable the default debian login
-passwd debian -l 
+passwd debian -l
 
 # Set a password for the root (user must change this on first use!)
-echo "root:LorankAdmin" | chpasswd 
+echo "root:LorankAdmin" | chpasswd

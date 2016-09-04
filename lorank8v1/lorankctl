@@ -1,21 +1,41 @@
 #!/bin/bash
 
-LOCCONF="/root/lorank8v1/local_conf.json"
+LOCDIR="/root/lorank8v1"
+LOCCONF="$LOCDIR/local_conf.json"
+LOCSTAT="$LOCDIR/stats.txt"
+LOCFRWD="$LOCDIR/forwarder"
+
+function startConcentrator
+{ if [[ $1 == "fw_poly" ]] || [[ $1 == "fw_semtech" ]] || [[ $1 == "fw_loriot" ]]
+  then
+    echo -n $1 > $LOCFRWD
+  fi
+  systemctl start lorank.service
+  echo "{}" > $LOCSTAT
+  echo "Starting Concentrator ... "
+}
+
+function stopConcentrator
+{ systemctl stop lorank.service
+  echo "{}" > $LOCSTAT
+  echo "Stopping Concentrator ... ";
+}
 
 if   [[  $1 == "DoShutdown"    ]]; then shutdown -h now && echo "Shutting down ...";
 elif [[  $1 == "DoReboot"      ]]; then reboot && echo "Rebooting ... ";
-elif [[  $1 == "DoStartConc"   ]]; then systemctl start lorank.service && echo "Starting Concentrator ... ";
-elif [[  $1 == "DoStopConc"    ]]; then systemctl stop lorank.service && echo "Stopping Concentrator ... ";
+elif [[  $1 == "DoStartConc"   ]]; then startConcentrator $2;
+elif [[  $1 == "DoStopConc"    ]]; then stopConcentrator;
 elif [[  $1 == "DoClearStats"  ]]; then echo "DoClearStats";
 elif [[  $1 == "DoCheckUpdate" ]]; then echo "DoCheckUpdate";
 elif [[  $1 == "DoUpdate"      ]]; then echo "DoUpdate";
 elif [[  $1 == "GetStatus"     ]]; then systemctl status lorank.service | grep "Active:";
 elif [[  $1 == "GetSysDate"    ]]; then date;
-elif [[  $1 == "GetStats"      ]]; then echo "GetStats";
+elif [[  $1 == "GetStats"      ]]; then cat $LOCSTAT;
+elif [[  $1 == "GetForwarder"  ]]; then cat $LOCFRWD;
 elif [[  $1 == "GetSysInfo"    ]]; then echo $(cat /proc/uptime)";"$(cat /proc/loadavg)";"$(date);
 elif [[  $1 == "GetLogs50"     ]]; then tail -n 50 /var/log/syslog;
 elif [[  $1 == "GetLogs200"    ]]; then tail -n 200 /var/log/syslog;
-elif [[  $1 == "GetLogsOn"     ]]; then tail -f /var/log/syslog; 
+elif [[  $1 == "GetLogsOn"     ]]; then tail -f /var/log/syslog;
 elif [[  $1 == "GetLogsOff"    ]]; then killall tail;
 elif [[  $1 == "GetDiskfree"   ]]; then df -BM -t rootfs | tail -n +2 | tr -s ' ' ;
 elif [[  $1 == "GetConf"       ]]; then cat $LOCCONF | sed -r ':a; s%(.*)/\*.*\*/%\1%; ta; /\/\*/ !b; N; ba';

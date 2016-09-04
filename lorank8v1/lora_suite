@@ -1,9 +1,9 @@
 #!/bin/bash
 
-# Use this script to install a particular version of then Lora Suite 
+# Use this script to install a particular version of then Lora Suite
 # from github or the latest version. Versions are cloned and precompiled
 # in a seperate directory and executeables are then copied to the platform
-# dependent directory. Executeables already present there are removed, 
+# dependent directory. Executeables already present there are removed,
 # config files are renewd, old ones are saved. It is assumed init_bbb has
 # been run.
 
@@ -12,7 +12,7 @@ set -e
 
 # Check if we start at the correct location
 if [ ! -d Lorank ]
-then 
+then
   echo "ERROR: Invalid working directory, does not contain the Lorank directory"
   exit 1
 fi
@@ -20,7 +20,7 @@ fi
 # See if we want a particular version (must be present as an release on github)
 # or just the lastest one.
 if [[ $1 == "" ]]
-then 
+then
   VERSION=Last
 else
   VERSION=$1
@@ -58,19 +58,21 @@ popd
 mkdir -p $TARGETDIR
 pushd $TARGETDIR
 rm -f *_pkt_fwd
-if [ -e global_conf.json ] 
-then 
+if [ -e global_conf.json ]
+then
   mv global_conf.json global_conf_old.json
   echo "Warning: New global_conf.json, manually copy you entries from the old version."
-fi  
+fi
 popd
 
 # Copy the executeables to the target location
 cp Lorank/$TARGETDIR/start       $TARGETDIR/
 cp Lorank/$TARGETDIR/ResetIC880A $TARGETDIR/
 cp Lorank/$TARGETDIR/lorankctl   $TARGETDIR/
-cp $BASEDIR/packet_forwarder/basic_pkt_fwd/basic_pkt_fwd $TARGETDIR/
+cp $BASEDIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd $TARGETDIR/
 cp $BASEDIR/packet_forwarder/poly_pkt_fwd/poly_pkt_fwd $TARGETDIR/
+cp $BASEDIR/loriot_pkt_fwd $TARGETDIR/
+
 
 # Copy the configuration files to the target directory
 cp Lorank/$TARGETDIR/global_conf.json $TARGETDIR/
@@ -78,7 +80,7 @@ cp Lorank/$TARGETDIR/global_conf.json $TARGETDIR/
 # Give the gateway an unique address, if not already present.
 if [ ! -e $TARGETDIR/local_conf.json ]
 then
-  REPLACE=`printf "%016x" $((0x1dee<<48 | RANDOM<<30 | RANDOM<<15 | RANDOM))`; 
+  REPLACE=`printf "%016x" $((0x1dee<<48 | RANDOM<<30 | RANDOM<<15 | RANDOM))`;
   echo $REPLACE > $TARGETDIR/gatewayID
   cat Lorank/$TARGETDIR/local_conf.json | sed "s|1DEE000000000000|${REPLACE}|" > $TARGETDIR/local_conf.json
 fi;

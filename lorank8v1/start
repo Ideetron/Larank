@@ -1,19 +1,48 @@
 #! /bin/bash
 
-# Test the connection, wait if needed.
-while [[ $(ping -c1 google.com 2>&1 | grep " 0% packet loss") == "" ]]; do
+FRWD=$(cat "./forwarder")
+
+# Test the connection, wait if needed, but not forever.
+CNT=5
+while [[ $(ping -c1 google.com 2>&1 | grep " 0% packet loss") == "" ]] && [[ $CNT -gt 0 ]]; do
   echo "Concentrator: waiting for internet connection ... "
+  let CNT=CNT-1
   sleep 30
   done
 
+if [[ $(ping -c1 google.com 2>&1 | grep " 0% packet loss") == "" ]]
+then
+  echo "Concentrator: internet does not work or is blocked, let's just continue ...  "
+fi
+
+
 # Test if the time has already been set, wait if needed, but not for ever.
-CNT=10
+CNT=5
 while [[ $(date +%Y) -lt 2016 ]] && [[ $CNT -gt 0 ]]; do
   echo "Concentrator: waiting for clock to be set, ($CNT) ... "
   let CNT=CNT-1
   sleep 15
   done
- 
-# Reset the concentrator board and fire up the forwarder.  
-./ResetIC880A  
-./poly_pkt_fwd
+
+if [[ $(date +%Y) -lt 2016 ]]
+then
+  echo "Concentrator: time is still more than a year off, let's just continue ...  "
+fi
+
+
+# Reset the concentrator board and fire up the forwarder.
+./ResetIC880A
+
+# Select the apropiate forwarder and start it.
+if   [[ $FRWD == "fw_semtech" ]]
+then
+  echo "Starting the standard Semtech packet forwarder."
+  ./lora_pkt_fwd
+elif [[ $FRWD == "fw_loriot"  ]]
+then
+  echo "Starting the Loriot packet forwarder"
+  ./loriot_pkt_fwd -f
+else
+  echo "Starting the Poly packet forwarder."
+  ./poly_pkt_fwd
+fi

@@ -88,7 +88,7 @@ fi
 # Get the Loriot packet forwarder
 apt-get install -qq ca-certificates
 mkdir -p Lorank/Loriot/$TARGETDIR
-wget -nv -nc https://github.com/Ideetron/Lorank/raw/master/loriot_lorank_8_iC880A_SPI_1.0.1.tgz
+wget -nv -nc https://github.com/Ideetron/Lorank/raw/master/lorank8v1/loriot_lorank_8_iC880A_SPI_1.0.1.tgz
 tar xf loriot_lorank_8_iC880A_SPI_1.0.1.tgz
 mv loriot_lorank_8_iC880A_SPI_1.0.1 loriot_pkt_fwd
 

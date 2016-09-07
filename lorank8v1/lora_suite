@@ -71,7 +71,7 @@ cp Lorank/$TARGETDIR/ResetIC880A $TARGETDIR/
 cp Lorank/$TARGETDIR/lorankctl   $TARGETDIR/
 cp $BASEDIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd $TARGETDIR/
 cp $BASEDIR/packet_forwarder/poly_pkt_fwd/poly_pkt_fwd $TARGETDIR/
-cp $BASEDIR/loriot_pkt_fwd $TARGETDIR/
+cp Lorank/Loriot/loriot_pkt_fwd  $TARGETDIR/
 
 
 # Copy the configuration files to the target directory

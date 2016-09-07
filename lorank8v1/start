@@ -44,5 +44,6 @@ then
   ./loriot_pkt_fwd -f
 else
   echo "Starting the Poly packet forwarder."
+  echo "{}" > stats.txt
   ./poly_pkt_fwd
 fi

@@ -73,7 +73,6 @@ cp $BASEDIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd $TARGETDIR/
 cp $BASEDIR/packet_forwarder/poly_pkt_fwd/poly_pkt_fwd $TARGETDIR/
 mv -f Lorank/Loriot/loriot_pkt_fwd  $TARGETDIR/
 
-
 # Copy the configuration files to the target directory
 cp Lorank/$TARGETDIR/global_conf.json $TARGETDIR/
 
@@ -84,5 +83,11 @@ then
   echo $REPLACE > $TARGETDIR/gatewayID
   cat Lorank/$TARGETDIR/local_conf.json | sed "s|1DEE000000000000|${REPLACE}|" > $TARGETDIR/local_conf.json
 fi;
+
+# See if we must create a default setting for the forwarder
+if [ ! -e $TARGETDIR/forwarder ]
+then
+  echo "fw_poly" > forwarder
+fi
 
 

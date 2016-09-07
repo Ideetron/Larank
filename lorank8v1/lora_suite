@@ -87,7 +87,7 @@ fi;
 # See if we must create a default setting for the forwarder
 if [ ! -e $TARGETDIR/forwarder ]
 then
-  echo "fw_poly" > $TARGETDIR/forwarder
+  echo -n "fw_poly" > $TARGETDIR/forwarder
 fi
 
 

@@ -77,21 +77,21 @@ wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/
 wget -nv -nc -P/var/lib/cloud9/static https://code.jquery.com/jquery-1.12.2.min.js
 
 # Get the ngrok binairy for remote maintenance
-if [ ! -e /usr/bin/ngrok ]
-then
-  wget -nv https://github.com/Ideetron/Lorank/raw/master/lorank8v1/ngrok_2.0.19.gz
-  gunzip ngrok_2.0.19.gz
-  mv ngrok_2.0.19 /usr/bin/ngrok
-  chmod u+x /usr/bin/ngrok
-fi
+mkdir -p Lorank/Ngrok
+pushd Lorank/Ngrok
+wget -nv -N https://github.com/Ideetron/Lorank/raw/master/lorank8v1/ngrok_latest.gz
+gunzip -c ngrok_latest.gz > /usr/bin/ngrok
+chmod u+x /usr/bin/ngrok
+popd
 
 # Get the Loriot packet forwarder
 apt-get install -qq ca-certificates
 mkdir -p Lorank/Loriot
 pushd Lorank/Loriot
-wget -nv -nc https://github.com/Ideetron/Lorank/raw/master/lorank8v1/loriot_lorank_8_iC880A_SPI_1.0.1.tgz
-tar xf loriot_lorank_8_iC880A_SPI_1.0.1.tgz
-mv loriot_lorank_8_iC880A_SPI_1.0.1 loriot_pkt_fwd
+wget -nv -N https://github.com/Ideetron/Lorank/raw/master/lorank8v1/loriot_lorank_8_iC880A_SPI_latest.tgz
+tar xf loriot_lorank_8_iC880A_SPI_latest.tgz
+mv loriot_lorank_8_iC880A_SPI_*[^.tgz] loriot_pkt_fwd
+popd
 
 # Disable the default debian login
 passwd debian -l

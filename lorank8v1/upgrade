@@ -30,6 +30,20 @@ git pull
 if [[ $VERSION != "" ]]; then git checkout -q Lorank_v$VERSION; fi
 popd
 
+# Upgrade the auxiliary program ngrok 
+pushd Lorank/Ngrok
+wget -nv -N https://github.com/Ideetron/Lorank/raw/master/lorank8v1/ngrok_latest.gz
+gunzip -c ngrok_latest.gz > /usr/bin/ngrok
+chmod u+x /usr/bin/ngrok
+popd
+
+# Upgrade the auxiliary program loriot
+pushd Lorank/Loriot
+wget -nv -N https://github.com/Ideetron/Lorank/raw/master/lorank8v1/loriot_lorank_8_iC880A_SPI_latest.tgz
+tar xf loriot_lorank_8_iC880A_SPI_latest.tgz
+mv loriot_lorank_8_iC880A_SPI_*[^.tgz] loriot_pkt_fwd
+popd
+
 # Install the new lora suite 
 ./Lorank/$HWTARGET/lora_suite $VERSION
 

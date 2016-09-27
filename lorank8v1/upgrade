@@ -62,7 +62,8 @@ if [ -e /root/savesys/bonescript_index.js ]
 then
   cp /root/savesys/bonescript_index.js /usr/local/lib/node_modules/bonescript/index.js
 fi
-patch -N /usr/local/lib/node_modules/bonescript/index.js Lorank/$HWTARGET/index.js.patch
+# patch the bonescript, but do no stop on error this time
+patch -N /usr/local/lib/node_modules/bonescript/index.js Lorank/$HWTARGET/index.js.patch || true
 
 # Install the new lora suite
 ./Lorank/$HWTARGET/lora_suite $VERSION

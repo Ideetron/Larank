@@ -65,6 +65,9 @@ then
 fi
 popd
 
+# Copy the configuration files to the target directory
+cp Lorank/$TARGETDIR/global_conf.json $TARGETDIR/
+
 # Copy the executeables to the target location
 cp Lorank/$TARGETDIR/start       $TARGETDIR/
 cp Lorank/$TARGETDIR/ResetIC880A $TARGETDIR/
@@ -72,9 +75,6 @@ cp Lorank/$TARGETDIR/lorankctl   $TARGETDIR/
 cp $BASEDIR/packet_forwarder/lora_pkt_fwd/lora_pkt_fwd $TARGETDIR/
 cp $BASEDIR/packet_forwarder/poly_pkt_fwd/poly_pkt_fwd $TARGETDIR/
 mv -f Lorank/Loriot/loriot_pkt_fwd  $TARGETDIR/
-
-# Copy the configuration files to the target directory
-cp Lorank/$TARGETDIR/global_conf.json $TARGETDIR/
 
 # Give the gateway an unique address, if not already present.
 if [ ! -e $TARGETDIR/local_conf.json ]

@@ -44,27 +44,35 @@
   var showableConfiguration = false;
   var configuration = {};
   var menu = "status";
-  var fastTimer = setTimeout(fastLoop,1000)
+  var fastTimer = setTimeout(fastLoop,1000);
   function fastLoop()
-  { fastTimer = setTimeout(fastLoop,5051)
+  { fastTimer = setTimeout(fastLoop,5051);
     upTime();
     getStatus();
     getStats(); }
-  var slowTimer = setTimeout(slowLoop,1500)
+  var slowTimer = setTimeout(slowLoop,1500);
   function slowLoop()
-  { slowTimer = setTimeout(slowLoop,60033)
+  { slowTimer = setTimeout(slowLoop,60033);
     diskFree(); }
+  var onceTimer = setTimeout(onceLoop,500);
+  function onceLoop()
+  { getMacAddr();
+    getConf(); }
 
 
-  function getValue(id)         { return document.getElementById(id).value;}
-  function setValue(id,val)     { document.getElementById(id).value=val;}
-  function getChecked(id)       { return document.getElementById(id).checked;}
-  function setChecked(id,val)   { document.getElementById(id).checked=val;}
+  function getValue(id)         { return document.getElementById(id).value.trim(); }
+  function getChecked(id)       { return document.getElementById(id).checked; }
+  function getIndet(id)         { return document.getElementById(id).indeterminate; }
+  function setValue(id,val)     { document.getElementById(id).value = val; }
+  function setIndet(id,val)     { document.getElementById(id).indeterminate = val; }
+  function setChecked(id,val)   { document.getElementById(id).checked = val; }
   function setHTML(id,val)      { document.getElementById(id).innerHTML = val; }
   function setText(id,val)      { $("#"+id).text(val); }
-  function setClass(id,val)     { document.getElementById(id).className=val; }
+  function setClass(id,val)     { document.getElementById(id).className = val; }
   function addClass(id,val)     { document.getElementById(id).classList.add(val); }
   function delClass(id,val)     { document.getElementById(id).classList.remove(val); }
+
+  function setTristate(id,obj,node)  { if (obj.hasOwnProperty(node)) setChecked(id,obj[node]); else setIndet(id,true); }
 
   function getRadio(name,dflt)
   { var frdw = document.querySelector('input[name="'+name+'"]:checked');
@@ -143,6 +151,11 @@
   { function proc(x) { setProgress("diskfreeProgbar",x.split(" ")[4]); }
     require('bonescript').lorankctl('GetDiskfree',callback(proc)); }
 
+  function getMacAddr()
+  { function proc(x)
+    { setValue("MacAddress",x);}
+    require('bonescript').lorankctl("GetEth0Addr",callback(proc)); }
+
   function upTime()
   { function proc(x)
     { var vp = x.split(";");
@@ -173,11 +186,11 @@
   function getConf()
   { function proc(x)
     { configuration = JSON.parse(x);
-      setChecked("BeaconInput",configuration.gateway_conf.beacon);
-      setChecked("LoggerInput",configuration.gateway_conf.logger);
-      setChecked("UpstreamInput",configuration.gateway_conf.upstream);
-      setChecked("DownstreamInput",configuration.gateway_conf.downstream);
-      setChecked("StatusstreamInput",configuration.gateway_conf.statusstream);
+      setTristate("BeaconInput",configuration.gateway_conf,"beacon");
+      setTristate("LoggerInput",configuration.gateway_conf,"logger");
+      setTristate("UpstreamInput",configuration.gateway_conf,"upstream");
+      setTristate("DownstreamInput",configuration.gateway_conf,"downstream");
+      setTristate("StatusstreamInput",configuration.gateway_conf,"statusstream");
       setChecked("StatusSemtechInput",configuration.gateway_conf.stat_format == "semtech");
       setChecked("StatusIdeeConciseInput",configuration.gateway_conf.stat_format == "idee_concise");
       setChecked("StatusIdeeVerboseInput",configuration.gateway_conf.stat_format == "idee_verbose");
@@ -290,12 +303,12 @@
     else if (!checkConf())    footerMessage("No configuration to update.",true,5);
     else if (!checkAll())     footerMessage("Some fields are invalid.",true,5);
     else
-    { configuration.gateway_conf.beacon         = getChecked("BeaconInput");
-      configuration.gateway_conf.logger         = getChecked("LoggerInput");
-      configuration.gateway_conf.upstream       = getChecked("UpstreamInput");
-      configuration.gateway_conf.downstream     = getChecked("DownstreamInput");
-      configuration.gateway_conf.statusstream   = getChecked("StatusstreamInput");
-      configuration.gateway_conf.stat_format    = getRadio("log_select","")
+    { if (!getIndet("BeaconInput"))       configuration.gateway_conf.beacon         = getChecked("BeaconInput");
+      if (!getIndet("LoggerInput"))       configuration.gateway_conf.logger         = getChecked("LoggerInput");
+      if (!getIndet("UpstreamInput"))     configuration.gateway_conf.upstream       = getChecked("UpstreamInput");
+      if (!getIndet("DownstreamInput"))   configuration.gateway_conf.downstream     = getChecked("DownstreamInput");
+      if (!getIndet("StatusstreamInput")) configuration.gateway_conf.statusstream   = getChecked("StatusstreamInput");
+      if (getRadio("log_select","")!="")  configuration.gateway_conf.stat_format    = getRadio("log_select","")
       configuration.gateway_conf.gateway_ID     = getValue("GatewayIDInput");
       configuration.gateway_conf.description    = getValue("DescriptionInput");
       configuration.gateway_conf.contact_email  = getValue("ContactEmailInput") ;
@@ -475,37 +488,43 @@
 
 <div id="adminForwarderWell" class="well hidden">
 
-   <p>The Lorank comes with three forwarders preinstalled. Per default, the Poly packet forwarder is running. This forwarder is
-   derived from the Semtech standard forwarder and maintained by Ideetron and supported by The Things Network. With this
-   forwarder it is possible to send your data to one or multiple (none OTAA) servers and get insight in its performance on the status
-   page of this website. The Semtech standard packet forwarder is simpler, also supported by The Things Network, but not maintained
-   by Ideetron. Getting your data from Semtech may require an account, and its opetartions can only be monitored by checking the
-   logs regularly. Finally, you can use the packet forwarder from Loriot.
-   This is a closed source forwarder and sends the data directly to the Loriot backend. Data and statistics
-   can be obtaind at their website. An account must be made first. Some (or all) of the configuration settings on this page may not
-   work for the Semtech or Loriot forwarder. </p>
-   <p>To switch, stop the concentrator, choose and start it again. </p>
+  <div style="display:flex">
+    <div class="front">Mac address</div>
+    <input class="back" id="MacAddress" readonly>
+  </div>
+  <br/>
 
-    <div class="row">
-      <div id="forwarder_choice" class="col-md-4">
-        <div class="radio">
-          <label><input id="fw_poly" type="radio" name="fw_select" value="fw_poly">Use open source Poly packet forwarder.</label>
-        </div>
-        <div class="radio">
-          <label><input id="fw_semtech" type="radio" name="fw_select" value="fw_semtech">Use open source Semtech packet forwarder.</label>
-        </div>
-        <div class="radio">
-          <label><input id="fw_loriot" type="radio" name="fw_select" value="fw_loriot">Use proprietary Loriot packet forwarder.</label>
-        </div>
+  <p>The Lorank comes with three forwarders preinstalled. Per default, the Poly packet forwarder is running. This forwarder is
+  derived from the Semtech standard forwarder and maintained by Ideetron and supported by The Things Network. With this
+  forwarder it is possible to send your data to one or multiple (none OTAA) servers and get insight in its performance on the status
+  page of this website. The Semtech standard packet forwarder is simpler, also supported by The Things Network, but not maintained
+  by Ideetron. Getting your data from Semtech may require an account, and its opetartions can only be monitored by checking the
+  logs regularly. Finally, you can use the packet forwarder from Loriot.
+  This is a closed source forwarder and sends the data directly to the Loriot backend. Data and statistics
+  can be obtaind at their website. An account must be made first. Some (or all) of the configuration settings on this page may not
+  work for the Semtech or Loriot forwarder. </p>
+  <p>To switch, stop the concentrator, choose and start it again. </p>
+
+  <div class="row">
+    <div id="forwarder_choice" class="col-md-4">
+      <div class="radio">
+        <label><input id="fw_poly" type="radio" name="fw_select" value="fw_poly">Use open source Poly packet forwarder.</label>
       </div>
-      <div id="forwarder_links" class="col-md-4">
-        <br/>
-        <a href=https://account.thethingsnetwork.org/users/login">Click here to join The Things Network.</a><br/>
-        <a href="http://iot.semtech.com">Click here to view the Semtech backend.</a><br/>
-        <a href="https://eu1.loriot.io/home">Click here to log in into the Loriot backend.</a><br/>
+      <div class="radio">
+        <label><input id="fw_semtech" type="radio" name="fw_select" value="fw_semtech">Use open source Semtech packet forwarder.</label>
+      </div>
+      <div class="radio">
+        <label><input id="fw_loriot" type="radio" name="fw_select" value="fw_loriot">Use proprietary Loriot packet forwarder.</label>
       </div>
     </div>
-    <br/>
+    <div id="forwarder_links" class="col-md-4">
+      <br/>
+      <a href=https://account.thethingsnetwork.org/users/login">Click here to join The Things Network.</a><br/>
+      <a href="http://iot.semtech.com">Click here to view the Semtech backend.</a><br/>
+      <a href="https://eu1.loriot.io/home">Click here to log in into the Loriot backend.</a><br/>
+    </div>
+  </div>
+  <br/>
 
   <button type="button" class="btn btn-info hidden">Check for Updates</button>
   <button type="button" class="btn btn-info" onclick="startConcentrator()">Start Concentrator</button>
@@ -518,9 +537,14 @@
 
 <div id="adminConfigWell" class="well hidden">
 
+  <p>Values below are the most used user settings and are placed in local_conf.json. Values that are absent are read from global_conf.json.
+  Modifications to global_conf.json are not possible from this interface, but you are advised to keep global_conf.json unaltered for it
+  is overwritten when upgrading. Updating the current configuration is only possible when the concentrator is not running. </p>
+  <br>
+
   <div style="display:flex">
      <div class="front">Logger</div>
-     <span><input class="back" id="LoggerInput" type="checkbox">&nbsp;&nbsp;(Logger generates extensive (!!) logging in the logging files, default value: off.)</span>
+     <span><input class="back" id="LoggerInput" type="checkbox">&nbsp;&nbsp;(Logger generates extensive (!!) logging in the log files, default value: off.)</span>
   </div>
   <br/>
   <div style="display:flex">
@@ -584,9 +608,9 @@
   </div>
   <br/>
 
-  <button id="getConfBtn" type="button" class="btn btn-info" onclick="getConf()">Get Configuration</button>
-  <button id="makeIDBtn" type="button" class="btn btn-info" onclick="makeID()">Make New ID</button>
-  <button id="setConfBtn"  type="button" class="btn btn-warning" onclick="updateConf()">Update Configuration</button>
+  <button id="getConfBtn" type="button" class="btn btn-info"    onclick="getConf()">Get Configuration</button>
+  <button id="makeIDBtn"  type="button" class="btn btn-info"    onclick="makeID()">Make New ID</button>
+  <button id="setConfBtn" type="button" class="btn btn-warning" onclick="updateConf()">Update Configuration</button>
 
 </div>
 

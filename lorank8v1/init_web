@@ -1,0 +1,53 @@
+#!/bin/bash
+
+# Start this script once to modify a new BBB
+# In the directory you cloned the repro Lorank in.
+
+TARGETDIR=lorank8v1
+DOGTAG=$(md5sum /etc/dogtag)
+DTSHORT=${DOGTAG:0:5}
+
+# Stop on the first sign of trouble
+set -e
+
+# Check if we start at the correct location
+if [ ! -d Lorank ]
+then
+  echo "ERROR: Invalid working directory, does not contain the Lorank directory"
+  exit 1
+fi
+
+if [ ! -d Lorank/$TARGETDIR/$DTSHORT ]
+then
+  echo "ERROR: BBB Release not known, no initialization possible"
+  exit 1
+fi
+
+# Make dir for the system files we are about to modify
+mkdir -p /root/savesys
+
+# Load a basic webpage
+mkdir -p /var/lib/cloud9/images
+cp -n /var/lib/cloud9/index.html /root/savesys/cloud9_index.html
+cp Lorank/$TARGETDIR/index.html  /var/lib/cloud9/index.html
+cp Lorank/$TARGETDIR/photo.jpg   /var/lib/cloud9/images/photo.jpg
+
+# Patch the bonescript file, if possible
+if [ -e /usr/local/lib/node_modules/bonescript/index.js ]
+then
+  cp -n /usr/local/lib/node_modules/bonescript/index.js /root/savesys/bonescript_index.js
+  patch -N usr/local/lib/node_modules/bonescript/index.js Lorank/$TARGETDIR/$DTSHORT/index.js.patch || true
+elif [ -e /usr/local/lib/node_modules/bonescript/src/index.js ]
+then
+  cp -n /usr/local/lib/node_modules/bonescript/src/index.js /root/savesys/bonescript_src_index.js
+  patch -N /usr/local/lib/node_modules/bonescript/src/index.js Lorank/$TARGETDIR/$DTSHORT/index.js.patch || true
+else
+  echo "Could find a bonescript index.js file to patch, hope that's okay."
+fi
+
+# Localize files for off-line use
+wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css
+wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css.map
+wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js
+wget -nv -nc -P/var/lib/cloud9/static https://code.jquery.com/jquery-1.12.2.min.js
+

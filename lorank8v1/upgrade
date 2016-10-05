@@ -23,11 +23,6 @@ then
   exit 1
 fi
 
-# Make necessary directories
-mkdir -p /root/savesys
-mkdir -p Lorank/Ngrok
-mkdir -p Lorank/Loriot
-
 # Upgrade the Lorank tree
 pushd Lorank
 git checkout master
@@ -35,38 +30,16 @@ git pull
 if [[ $VERSION != "" ]]; then git checkout -q Lorank_v$VERSION; fi
 popd
 
-# Localize files for off-line use
-wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css
-wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css.map
-wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js
-wget -nv -nc -P/var/lib/cloud9/static https://code.jquery.com/jquery-1.12.2.min.js
+# Reinstall the auxiliary software
+./Lorank/$HWTARGET/init_aux
 
-# Upgrade the auxiliary program ngrok
-pushd Lorank/Ngrok
-wget -nv -N https://github.com/Ideetron/Lorank/raw/master/lorank8v1/ngrok_latest.gz
-gunzip -c ngrok_latest.gz > /usr/bin/ngrok
-chmod u+x /usr/bin/ngrok
-popd
+# Reinstall the website
+./Lorank/$HWTARGET/init_web
 
-# Upgrade the auxiliary program loriot
-pushd Lorank/Loriot
-wget -nv -N https://github.com/Ideetron/Lorank/raw/master/lorank8v1/loriot_lorank_8_iC880A_SPI_latest.tgz
-tar xf loriot_lorank_8_iC880A_SPI_latest.tgz
-mv loriot_lorank_8_iC880A_SPI_*[^.tgz] loriot_pkt_fwd
-popd
+# Renstall the proprietary software
+./Lorank/$HWTARGET/init_prop
 
-# Upgrade the webpage
-cp Lorank/$HWTARGET/index.html /var/lib/cloud9/
-cp Lorank/$HWTARGET/photo.jpg  /var/lib/cloud9/images/
-if [ -e /root/savesys/bonescript_index.js ]
-then
-  cp /root/savesys/bonescript_index.js /usr/local/lib/node_modules/bonescript/index.js
-fi
-# patch the bonescript, but do no stop on error this time
-patch -N /usr/local/lib/node_modules/bonescript/index.js Lorank/$HWTARGET/index.js.patch || true
-
-# Install the new lora suite
+# Reinstall the lora suite
 ./Lorank/$HWTARGET/lora_suite $VERSION
 
-# This should already be done, so
-apt-get install -qq ca-certificates
+

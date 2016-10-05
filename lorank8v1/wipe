@@ -10,7 +10,7 @@ TARGETDIR=lorank8v1
 set -e
 
 if [ ! -d Lorank ]
-then 
+then
   echo "ERROR: Invalid working directory, does not contain the Lorank directory"
   exit 1
 fi
@@ -29,41 +29,51 @@ fi
 rm -rf Lorank
 rm -rf lorank*
 
-# Restore the boot environment 
+
+# Restore the boot environment
 if [ -e /root/savesys/boot_uEnv.txt ]
-then 
+then
   cp -af /root/savesys/boot_uEnv.txt /boot/uEnv.txt
 fi
 
 if [ -e /root/savesys/boot_uboot_uEnv.txt ]
-then 
+then
   cp -af /root/savesys/boot_uboot_uEnv.txt /boot/uboot/uEnv.txt
 fi
 
 
 # Restore the webpage
 if [ -e /root/savesys/cloud9_index.html ]
-then 
+then
   rm -f /var/lib/cloud9/index.html
   rm -f /var/lib/cloud9/images/photo.jpg
   cp -af /root/savesys/cloud9_index.html /var/lib/cloud9/index.html
 fi
 
+
+# Restore the bonescript
 if [ -e /root/savesys/bonescript_index.js ]
-then 
+then
   cp -af /root/savesys/bonescript_index.js /usr/local/lib/node_modules/bonescript/index.js
+elif [ -e /root/savesys/bonescript_src_index.js ]
+then
+  cp -af /root/savesys/bonescript_src_index.js /usr/local/lib/node_modules/bonescript/src/index.js
 fi
 
-# Remove Lorank startup services 
+
+# Remove Lorank startup services
 systemctl stop lorank.service
 systemctl disable lorank.service
 rm -f /lib/systemd/system/lorank.service
 
+
 # Remove all ssh related stuff
 rm -rf /root/.ssh
 
-#Enable the debian (default) user
+
+# Reenable the debian (default) user
 passwd debian -u
 
-#Remove the root password
+
+# Remove the root password
 passwd -d root

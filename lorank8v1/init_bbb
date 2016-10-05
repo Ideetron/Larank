@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Start this script once to modify a new BBB
+# Start this script once to prepare a new BeagleBone
 # In the directory you cloned the repro Lorank in.
 
 TARGETDIR=lorank8v1
@@ -19,23 +19,18 @@ fi
 
 if [ ! -d Lorank/$TARGETDIR/$DTSHORT ]
 then
-  echo "ERROR: BBB Release not know, no initialization possible"
+  echo "ERROR: BeagleBone Release not known, no initialization possible"
   exit 1
 fi
 
 # Make dir for the system files we are about to modify
 mkdir -p /root/savesys
 
-# Make the Lorank platform specific software
-pushd Lorank/$TARGETDIR
-g++ -O2 -Wall ResetIC880A.cpp -o ResetIC880A
-popd
-
 # Make sure lorank gets to be a service after boottime
 cp Lorank/$TARGETDIR/lorank.service /lib/systemd/system/
 systemctl enable lorank.service
 
-# Disable HDMI on the BBB
+# Disable HDMI on the BBB, enable SPI
 if [ -e /boot/uEnv.txt ]
 then
   cp -a /boot/uEnv.txt /root/savesys/boot_uEnv.txt
@@ -56,42 +51,11 @@ hostname $NEWNAME
 echo $NEWNAME > /etc/hostname
 sed -i "s/$BBBNAME/$NEWNAME/" /etc/hosts
 
-# Load a basic webpage
-mkdir -p /var/lib/cloud9/images
-mv /var/lib/cloud9/index.html /root/savesys/cloud9_index.html
-cp /usr/local/lib/node_modules/bonescript/index.js /root/savesys/bonescript_index.js
-cp Lorank/$TARGETDIR/index.html /var/lib/cloud9/
-cp Lorank/$TARGETDIR/photo.jpg  /var/lib/cloud9/images/
-patch /usr/local/lib/node_modules/bonescript/index.js Lorank/$TARGETDIR/index.js.patch
-
 # Generate a key-pair so you can enable remote maintenance
 if [ ! -e /root/.ssh/id_rsa ]
 then
   ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
 fi
-
-# Localize files for off-line use
-wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css
-wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css.map
-wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js
-wget -nv -nc -P/var/lib/cloud9/static https://code.jquery.com/jquery-1.12.2.min.js
-
-# Get the ngrok binairy for remote maintenance
-mkdir -p Lorank/Ngrok
-pushd Lorank/Ngrok
-wget -nv -N https://github.com/Ideetron/Lorank/raw/master/lorank8v1/ngrok_latest.gz
-gunzip -c ngrok_latest.gz > /usr/bin/ngrok
-chmod u+x /usr/bin/ngrok
-popd
-
-# Get the Loriot packet forwarder
-apt-get install -qq ca-certificates
-mkdir -p Lorank/Loriot
-pushd Lorank/Loriot
-wget -nv -N https://github.com/Ideetron/Lorank/raw/master/lorank8v1/loriot_lorank_8_iC880A_SPI_latest.tgz
-tar xf loriot_lorank_8_iC880A_SPI_latest.tgz
-mv loriot_lorank_8_iC880A_SPI_*[^.tgz] loriot_pkt_fwd
-popd
 
 # Disable the default debian login
 passwd debian -l

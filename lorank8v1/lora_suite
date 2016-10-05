@@ -7,6 +7,8 @@
 # config files are renewd, old ones are saved. It is assumed init_bbb has
 # been run.
 
+TARGETDIR=lorank8v1
+
 # Stop on the first sign of trouble
 set -e
 
@@ -27,7 +29,6 @@ else
 fi
 
 BASEDIR=lorank8-$VERSION
-TARGETDIR=lorank8v1
 
 # Make the required directories, make sure they are clean
 mkdir -p $BASEDIR
@@ -61,7 +62,7 @@ rm -f *_pkt_fwd
 if [ -e global_conf.json ]
 then
   mv global_conf.json global_conf_old.json
-  echo "Warning: New global_conf.json, manually copy you entries from the old version."
+  echo "WARNING: New global_conf.json, manually copy your entries from the old version, if needed."
 fi
 popd
 

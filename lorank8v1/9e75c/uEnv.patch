@@ -1,0 +1,7 @@
+38c38,41
+< #cape_enable=bone_capemgr.enable_partno=
+---
+> #cape_enable=bone_capemgr.enable_partno=
+> 
+> ##SPI0
+> cape_enable= bone_capemgr.enable_partno =BB-SPIDEV0

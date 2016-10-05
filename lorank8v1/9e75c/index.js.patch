@@ -1,0 +1,29 @@
+*** index.jsORG Fri Jan 17 19:56:06 2014
+--- index.js    Tue Mar 29 20:06:10 2016
+***************
+*** 532,541 ****
+--- 532,555 ----
+      if(callback) callback({'data': data});
+      return(data);
+  };
+  f.echo.args = ['data', 'callback'];
+
++ f.lorankctl = function(arg, callback) {
++     var args="'"+arg+"'";
++     var sep=arg.indexOf("|");
++     if (sep>0) args="'"+arg.slice(0,sep)+"' '"+arg.slice(sep+1)+"'";
++     child_process.exec("/root/lorank8v1/lorankctl " + args , response);
++     function response(error, stdout, stderr) {
++         if(typeof callback != 'function') return;
++         if(error) callback({'error': error});
++         if(stdout) callback({'stdout': stdout});
++         if(stderr) callback({'stderr': stderr});
++     }
++ };
++ f.lorankctl.args = ['arg', 'callback'];
++
+  f.setDate = function(date, callback) {
+      child_process.exec('date -s "' + date + '"', dateResponse);
+
+      function dateResponse(error, stdout, stderr) {
+          if(typeof callback != 'function') return;

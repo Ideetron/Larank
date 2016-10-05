@@ -1,0 +1,20 @@
+#!/bin/bash
+
+# This part contains the installation of auxiliary software
+
+TARGETDIR=lorank8v1
+
+# Stop on the first sign of trouble
+set -e
+
+# Check if we start at the correct location
+if [ ! -d Lorank ]
+then
+  echo "ERROR: Invalid working directory, does not contain the Lorank directory"
+  exit 1
+fi
+
+# Make the Lorank platform specific software
+pushd Lorank/$TARGETDIR
+g++ -O2 -Wall ResetIC880A.cpp -o ResetIC880A
+popd

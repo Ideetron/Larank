@@ -20,34 +20,56 @@ set -e
 
 # Check if a version is supplied (obligatory at this point)
 if [[ $VERSION == "" ]]
-then 
+then
   echo "WARNING: No version number supplied, use latest."
 fi
 
 # Check if we start at the correct location
 if [ ! -d Lorank ]
-then 
+then
   echo "ERROR: Invalid working directory, does not contain the Lorank directory"
   exit 1
 fi
+
+# report progress
+led_flash 0
+sleep 1
+
+# Initialize the BeagleBone for first use.
+./Lorank/$HWTARGET/init_bbb
+
+# Install the auxiliary software
+./Lorank/$HWTARGET/init_aux
+
 
 # report progress
 led_on 0
 led_flash 1
 sleep 1
 
-# Initialize the BeagleBordBlack for first use.
-./Lorank/$HWTARGET/init_bbb 
+# Install the website
+./Lorank/$HWTARGET/init_web
+
 
 # report progress
 led_on 1
 led_flash 2
 sleep 1
 
-# Install the lora suite. 
-./Lorank/$HWTARGET/lora_suite $VERSION
+# Install the proprietary software
+./Lorank/$HWTARGET/init_prop
+
 
 # report progress
 led_on 2
 led_flash 3
 sleep 1
+
+# Install the lora suite.
+./Lorank/$HWTARGET/lora_suite $VERSION
+
+
+# We are done
+led_on 3
+sleep 1
+

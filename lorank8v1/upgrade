@@ -6,6 +6,8 @@
 
 VERSION=$1
 HWTARGET=lorank8v1
+DOGTAG=$(md5sum /etc/dogtag)
+DTSHORT=${DOGTAG:0:5}
 
 # Stop on the first sign of trouble
 set -e
@@ -20,6 +22,12 @@ fi
 if [ ! -d Lorank ]
 then
   echo "ERROR: Invalid working directory, does not contain the Lorank directory"
+  exit 1
+fi
+
+if [ ! -d Lorank/$TARGETDIR/$DTSHORT ]
+then
+  echo "ERROR: BBB Release not known, no initialization possible"
   exit 1
 fi
 

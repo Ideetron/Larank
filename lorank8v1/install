@@ -14,6 +14,8 @@ function led_error { led_flash 0; led_flash 1; led_flash 2; led_flash 3; }
 
 VERSION=$1
 HWTARGET=lorank8v1
+DOGTAG=$(md5sum /etc/dogtag)
+DTSHORT=${DOGTAG:0:5}
 
 # Stop on the first sign of trouble
 set -e
@@ -31,12 +33,22 @@ then
   exit 1
 fi
 
+if [ ! -d Lorank/$TARGETDIR/$DTSHORT ]
+then
+  echo "ERROR: BBB Release not known, no initialization possible"
+  exit 1
+fi
+
+
 # report progress
 led_flash 0
 sleep 1
 
 # Initialize the BeagleBone for first use.
 ./Lorank/$HWTARGET/init_bbb
+
+# Perform the platform dependent initialization.
+./Lorank/$HWTARGET/$DTSHORT/init_form
 
 # Install the auxiliary software
 ./Lorank/$HWTARGET/init_aux

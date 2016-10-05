@@ -1,0 +1,16 @@
+#!/bin/bash
+
+# Start this script once to prepare a new BeagleBone
+# In the directory you cloned the repro Lorank in.
+
+TARGETDIR=lorank8v1
+
+# Stop on the first sign of trouble
+set -e
+
+# Check if we start at the correct location
+if [ ! -d Lorank ]
+then
+  echo "ERROR: Invalid working directory, does not contain the Lorank directory"
+  exit 1
+fi

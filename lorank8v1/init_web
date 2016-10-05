@@ -35,12 +35,12 @@ cp Lorank/$TARGETDIR/photo.jpg   /var/lib/cloud9/images/photo.jpg
 # Patch the bonescript file, if possible
 if [ -e /usr/local/lib/node_modules/bonescript/index.js ]
 then
-  cp -n    /usr/local/lib/node_modules/bonescript/index.js /root/savesys/bonescript_index.js
-  patch -N /usr/local/lib/node_modules/bonescript/index.js Lorank/$TARGETDIR/$DTSHORT/index.js.patch || true
-elif [ -e  /usr/local/lib/node_modules/bonescript/src/index.js ]
+  cp -n     /usr/local/lib/node_modules/bonescript/index.js /root/savesys/bonescript_index.js
+  patch -IN /usr/local/lib/node_modules/bonescript/index.js Lorank/$TARGETDIR/$DTSHORT/index.js.patch || true
+elif [ -e   /usr/local/lib/node_modules/bonescript/src/index.js ]
 then
-  cp -n    /usr/local/lib/node_modules/bonescript/src/index.js /root/savesys/bonescript_src_index.js
-  patch -N /usr/local/lib/node_modules/bonescript/src/index.js Lorank/$TARGETDIR/$DTSHORT/index.js.patch || true
+  cp -n     /usr/local/lib/node_modules/bonescript/src/index.js /root/savesys/bonescript_src_index.js
+  patch -IN /usr/local/lib/node_modules/bonescript/src/index.js Lorank/$TARGETDIR/$DTSHORT/index.js.patch || true
 else
   echo "Could find a bonescript index.js file to patch, hope that's okay."
 fi

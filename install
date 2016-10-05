@@ -24,7 +24,7 @@ if [[ $SWVERSION != "" ]]; then git checkout -q Lorank_v$SWVERSION; fi
 popd
 
 # Start the platform dependent installation for this release.
-#./Lorank/$HWTARGET/install $SWVERSION
+./Lorank/$HWTARGET/install $SWVERSION
 
 # We are done, check if we must report an error, if not terminate.
 if [ $? -ne 0 ];

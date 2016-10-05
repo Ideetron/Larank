@@ -31,6 +31,6 @@ if [ $? -ne 0 ];
 then
   led_error
 else
-  (sleep 2; shutdown now) &
+#  (sleep 2; shutdown now) &
 fi
 

@@ -26,11 +26,11 @@ popd
 # Start the platform dependent installation for this release.
 ./Lorank/$HWTARGET/install $SWVERSION
 
-# We are done, check if we must report an error, if not terminate. 
-if [ $? -ne 0 ]; 
+# We are done, check if we must report an error, if not terminate.
+if [ $? -ne 0 ];
 then
   led_error
-else 
-  shutdown -h now
+else
+  (sleep 2; shutdown now) &
 fi
 

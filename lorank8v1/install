@@ -33,7 +33,7 @@ then
   exit 1
 fi
 
-if [ ! -d Lorank/$TARGETDIR/$DTSHORT ]
+if [ ! -d Lorank/$HWTARGET/$DTSHORT ]
 then
   echo "ERROR: BBB Release not known, no initialization possible"
   exit 1

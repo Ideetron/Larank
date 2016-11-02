@@ -44,21 +44,32 @@
   var showableConfiguration = false;
   var configuration = {};
   var menu = "status";
-  var fastTimer = setTimeout(fastLoop,1000);
+
+  if (window.onload)
+  { var presentOnload = window.onload;
+    var extendOnload  = function(param) { presentOnload(param); startTimers(); };
+    window.onload = extendOnload; }
+  else
+  { window.onload = startTimers; }
+
+  function startTimers()
+  { setTimeout(fastLoop,1000);
+    setTimeout(slowLoop,1500);
+    setTimeout(onceLoop,500); }
   function fastLoop()
-  { fastTimer = setTimeout(fastLoop,5051);
+  { setTimeout(fastLoop,5051);
     upTime();
     getStatus();
     getStats(); }
-  var slowTimer = setTimeout(slowLoop,1500);
   function slowLoop()
-  { slowTimer = setTimeout(slowLoop,60033);
+  { setTimeout(slowLoop,60033);
     diskFree(); }
-  var onceTimer = setTimeout(onceLoop,500);
   function onceLoop()
   { getMacAddr();
+    getUname();
+    getDogtag();
+    getVersion();
     getConf(); }
-
 
   function getValue(id)         { return document.getElementById(id).value.trim(); }
   function getChecked(id)       { return document.getElementById(id).checked; }
@@ -111,18 +122,18 @@
   { menu = "status";
     setClass("menuStatus","active"); show("statusWell");
     if (showableStatistics) show("statisticsWell");
-    setClass("menuAdmin","");        hide("adminConfigWell"); hide("adminForwarderWell");
+    setClass("menuAdmin","");        hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
     setClass("menuLogs","");         hide("logsWell"); }
   function actAdmin()
   { menu = "admin";
     getForwarder();
     setClass("menuStatus","");       hide("statusWell");      hide("statisticsWell");
-    setClass("menuAdmin","active");  show("adminConfigWell"); show("adminForwarderWell");
+    setClass("menuAdmin","active");  show("adminConfigWell"); show("adminForwarderWell");  show("adminSystemInfoWell");
     setClass("menuLogs","");         hide("logsWell"); }
   function actLogs()
   { menu = "logs";
     setClass("menuStatus","");       hide("statusWell");      hide("statisticsWell");
-    setClass("menuAdmin","");        hide("adminConfigWell"); hide("adminForwarderWell");
+    setClass("menuAdmin","");        hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
     setClass("menuLogs","active");   show("logsWell"); }
 
   function humanTime(t)
@@ -156,7 +167,22 @@
     { setValue("MacAddress",x);}
     require('bonescript').lorankctl("GetEth0Addr",callback(proc)); }
 
-  function upTime()
+  function getUname()
+  { function proc(x)
+    { setValue("Uname",x);}
+    require('bonescript').lorankctl("GetUname",callback(proc)); }
+
+  function getDogtag()
+  { function proc(x)
+    { setValue("Dogtag",x);}
+    require('bonescript').lorankctl("GetDogtag",callback(proc)); }
+
+  function getVersion()
+  { function proc(x)
+    { setValue("Version",x);}
+    require('bonescript').lorankctl("GetVersion",callback(proc)); }
+
+    function upTime()
   { function proc(x)
     { var vp = x.split(";");
       var uptime = humanTime(vp[0].split(" ")[0]);
@@ -486,7 +512,7 @@
 
 </div>
 
-<div id="adminForwarderWell" class="well hidden">
+<div id="adminSystemInfoWell" class="well hidden">
 
   <div style="display:flex">
     <div class="front">Mac address</div>
@@ -494,11 +520,31 @@
   </div>
   <br/>
 
-  <p>The Lorank comes with three forwarders preinstalled. Per default, the Poly packet forwarder is running. This forwarder is
+  <div style="display:flex">
+    <div class="front">Lorank Version</div>
+    <input class="back" id="Version" readonly>
+  </div>
+  <br/>
+
+  <div style="display:flex">
+    <div class="front">Linux Distro</div>
+    <input class="back" id="Dogtag" readonly>
+  </div>
+  <br/>
+
+ <div style="display:flex">
+    <div class="front">System Info</div>
+    <input class="back" id="Uname" readonly>
+  </div>
+
+</div>
+
+<div id="adminForwarderWell" class="well hidden">
+  <p>The Lorank comes with three forwarders preinstalled. Per default, the poly packet forwarder is running. This forwarder is
   derived from the Semtech standard forwarder and maintained by Ideetron and supported by The Things Network. With this
   forwarder it is possible to send your data to one or multiple (none OTAA) servers and get insight in its performance on the status
   page of this website. The Semtech standard packet forwarder is simpler, also supported by The Things Network, but not maintained
-  by Ideetron. Getting your data from Semtech may require an account, and its opetartions can only be monitored by checking the
+  by Ideetron. Getting your data from Semtech may require an account, and its operations can only be monitored by checking the
   logs regularly. Finally, you can use the packet forwarder from Loriot.
   This is a closed source forwarder and sends the data directly to the Loriot backend. Data and statistics
   can be obtaind at their website. An account must be made first. Some (or all) of the configuration settings on this page may not

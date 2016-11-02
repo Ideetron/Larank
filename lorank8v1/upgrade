@@ -42,4 +42,7 @@ popd
 # Reinstall the lora suite
 ./Lorank/$HWTARGET/lora_suite $VERSION
 
+# Inform the user.
+echo "INFO: Upgrade complete, please restart the concentrator manually."
+
 

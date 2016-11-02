@@ -31,7 +31,7 @@ elif [[  $1 == "DoUpdate"      ]]; then echo "DoUpdate";
 elif [[  $1 == "GetEth0Addr"   ]]; then cat /sys/class/net/eth0/address;
 elif [[  $1 == "GetStatus"     ]]; then systemctl status lorank.service | grep "Active:";
 elif [[  $1 == "GetSysDate"    ]]; then date;
-elif [[  $1 == "GetVersion"    ]]; then git -C /root/Lorank status | head -n 1;
+elif [[  $1 == "GetVersion"    ]]; then cd /root/Lorank; git status | head -n 1;
 elif [[  $1 == "GetUname"      ]]; then uname -a;
 elif [[  $1 == "GetDogtag"     ]]; then cat /etc/dogtag;
 elif [[  $1 == "GetStats"      ]]; then cat $LOCSTAT;

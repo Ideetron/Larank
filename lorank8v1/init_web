@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Start this script once to modify a new BBB
+# Start this script once to modify a new Beagle Bone
 # In the directory you cloned the repro Lorank in.
 
 TARGETDIR=lorank8v1
@@ -19,7 +19,7 @@ fi
 
 if [ ! -d Lorank/$TARGETDIR/$DTSHORT ]
 then
-  echo "ERROR: BBB Release not known, no initialization possible"
+  echo "ERROR: Beagle Bone Release not known, no initialization possible"
   exit 1
 fi
 
@@ -30,19 +30,24 @@ mkdir -p /root/savesys
 mkdir -p /var/lib/cloud9/images
 cp -n /var/lib/cloud9/index.html /root/savesys/cloud9_index.html
 cp Lorank/$TARGETDIR/index.html  /var/lib/cloud9/index.html
+cp Lorank/$TARGETDIR/login.html  /var/lib/cloud9/login.html
 cp Lorank/$TARGETDIR/photo.jpg   /var/lib/cloud9/images/photo.jpg
 
 # Patch the bonescript file, if possible
 if [ -e /usr/local/lib/node_modules/bonescript/index.js ]
 then
-  cp -n     /usr/local/lib/node_modules/bonescript/index.js /root/savesys/bonescript_index.js
-  patch -lN /usr/local/lib/node_modules/bonescript/index.js Lorank/$TARGETDIR/$DTSHORT/index.js.patch || true
+  cp -n     /usr/local/lib/node_modules/bonescript/index.js  /root/savesys/bonescript_index.js
+  cp -n     /usr/local/lib/node_modules/bonescript/server.js /root/savesys/bonescript_server.js
+  patch -lN /usr/local/lib/node_modules/bonescript/index.js  Lorank/$TARGETDIR/$DTSHORT/index.js.patch  || true
+  patch -lN /usr/local/lib/node_modules/bonescript/server.js Lorank/$TARGETDIR/$DTSHORT/server.js.patch || true
 elif [ -e   /usr/local/lib/node_modules/bonescript/src/index.js ]
 then
-  cp -n     /usr/local/lib/node_modules/bonescript/src/index.js /root/savesys/bonescript_src_index.js
-  patch -lN /usr/local/lib/node_modules/bonescript/src/index.js Lorank/$TARGETDIR/$DTSHORT/index.js.patch || true
+  cp -n     /usr/local/lib/node_modules/bonescript/src/index.js  /root/savesys/bonescript_src_index.js
+  cp -n     /usr/local/lib/node_modules/bonescript/src/server.js /root/savesys/bonescript_src_server.js
+  patch -lN /usr/local/lib/node_modules/bonescript/src/index.js  Lorank/$TARGETDIR/$DTSHORT/index.js.patch  || true
+  patch -lN /usr/local/lib/node_modules/bonescript/src/server.js Lorank/$TARGETDIR/$DTSHORT/server.js.patch || true
 else
-  echo "Could find a bonescript index.js file to patch, hope that's okay."
+  echo "Could find no bonescript index.js file to patch, hope that's okay."
 fi
 
 # Localize files for off-line use
@@ -51,3 +56,8 @@ wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/
 wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js
 wget -nv -nc -P/var/lib/cloud9/static https://code.jquery.com/jquery-1.12.2.min.js
 
+# install additional nodeJS modules
+NPM_MODS="passport passport-local body-parser express-session connect-ensure-login" 
+pushd /usr/local/lib/node_modules/bonescript
+npm install $NPM_MODS
+popd

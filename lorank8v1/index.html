@@ -36,14 +36,17 @@
   .dl-narrow dt
   { min-width: 40px;
     width: 70px; }
+  
+  #menuLogout { float: right };
   </style>
 
   <script>
   var concentratorRunning   = true;
   var showableStatistics    = false;
   var showableConfiguration = false;
-  var configuration = {};
-  var menu = "status";
+  var loginSupported        = false;
+  var configuration         = {};
+  var activeMenu            = "menuStatus";
 
   if (window.onload)
   { var presentOnload = window.onload;
@@ -84,6 +87,7 @@
   function delClass(id,val)     { document.getElementById(id).classList.remove(val); }
 
   function setTristate(id,obj,node)  { if (obj.hasOwnProperty(node)) setChecked(id,obj[node]); else setIndet(id,true); }
+  function setValSave(id,obj,node)   { if (obj.hasOwnProperty(node)) setValue(id,obj[node]);   else setValue(id,""); }
 
   function getRadio(name,dflt)
   { var frdw = document.querySelector('input[name="'+name+'"]:checked');
@@ -95,9 +99,9 @@
     $("#"+id).text(val); }
 
   function footerClean()
-  { delClass("footerText","alert-danger")
-    delClass("footerText","alert-succes")
-    addClass("footerText","alert-info")
+  { delClass("footerText","alert-danger");
+    delClass("footerText","alert-succes");
+    addClass("footerText","alert-info");
     setHTML("footerText",""); }
 
   function footerMessage(message,isError,timeout)
@@ -114,27 +118,44 @@
     { delClass(id,trueCl);
       addClass(id,falseCl); } }
 
-  function setState(id,enabled) { document.getElementById(id).disabled = !enabled }
+  function setState(id,enabled) { document.getElementById(id).disabled = !enabled; }
 
   function hide(name)           { addClass(name,"hidden"); }
   function show(name)           { delClass(name,"hidden"); }
+  function activate(menuID)       
+  { delClass("menuStatus","active"); 
+    delClass("menuAdmin","active"); 
+    delClass("menuLogs","active"); 
+    delClass("menuAccess","active");  
+    activeMenu = menuID;
+    addClass(menuID,"active"); }
+    
   function actStatus()
-  { menu = "status";
-    setClass("menuStatus","active"); show("statusWell");
+  { activate("menuStatus");
+    show("statusWell");
     if (showableStatistics) show("statisticsWell");
-    setClass("menuAdmin","");        hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
-    setClass("menuLogs","");         hide("logsWell"); }
+    hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
+    hide("logsWell"); 
+    hide("accessWell"); }
   function actAdmin()
-  { menu = "admin";
-    getForwarder();
-    setClass("menuStatus","");       hide("statusWell");      hide("statisticsWell");
-    setClass("menuAdmin","active");  show("adminConfigWell"); show("adminForwarderWell");  show("adminSystemInfoWell");
-    setClass("menuLogs","");         hide("logsWell"); }
+  { getForwarder();
+    activate("menuAdmin");
+    hide("statusWell");      hide("statisticsWell");
+    show("adminConfigWell"); show("adminForwarderWell");  show("adminSystemInfoWell");
+    hide("logsWell"); 
+    hide("accessWell"); }
   function actLogs()
-  { menu = "logs";
-    setClass("menuStatus","");       hide("statusWell");      hide("statisticsWell");
-    setClass("menuAdmin","");        hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
-    setClass("menuLogs","active");   show("logsWell"); }
+  { activate("menuLogs");
+    hide("statusWell");      hide("statisticsWell");
+    hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
+    show("logsWell"); 
+    hide("accessWell"); }
+  function actAccess()
+  { activate("menuAccess");
+    hide("statusWell");      hide("statisticsWell");
+    hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
+    hide("logsWell"); 
+    show("accessWell"); }
 
   function humanTime(t)
   { function c(x) { return x.toFixed(0).toString(); }
@@ -164,25 +185,29 @@
 
   function getMacAddr()
   { function proc(x)
-    { setValue("MacAddress",x);}
+    { setValue("MacAddress",x); }
     require('bonescript').lorankctl("GetEth0Addr",callback(proc)); }
 
   function getUname()
   { function proc(x)
-    { setValue("Uname",x);}
+    { setValue("Uname",x); }
     require('bonescript').lorankctl("GetUname",callback(proc)); }
 
   function getDogtag()
   { function proc(x)
-    { setValue("Dogtag",x);}
+    { setValue("Dogtag",x); 
+      loginSupported = (x.indexOf("2015-03-01") >= 0) || (x.includes("2016-05-13") >= 0 );
+      if (loginSupported) 
+      { delClass("menuAccess","hidden");
+        delClass("menuLogout","hidden"); } }
     require('bonescript').lorankctl("GetDogtag",callback(proc)); }
 
   function getVersion()
   { function proc(x)
-    { setValue("Version",x);}
+    { setValue("Version",x); }
     require('bonescript').lorankctl("GetVersion",callback(proc)); }
 
-    function upTime()
+  function upTime()
   { function proc(x)
     { var vp = x.split(";");
       var uptime = humanTime(vp[0].split(" ")[0]);
@@ -212,20 +237,28 @@
   function getConf()
   { function proc(x)
     { configuration = JSON.parse(x);
-      setTristate("BeaconInput",configuration.gateway_conf,"beacon");
-      setTristate("LoggerInput",configuration.gateway_conf,"logger");
-      setTristate("UpstreamInput",configuration.gateway_conf,"upstream");
-      setTristate("DownstreamInput",configuration.gateway_conf,"downstream");
-      setTristate("StatusstreamInput",configuration.gateway_conf,"statusstream");
-      setChecked("StatusSemtechInput",configuration.gateway_conf.stat_format == "semtech");
-      setChecked("StatusIdeeConciseInput",configuration.gateway_conf.stat_format == "idee_concise");
-      setChecked("StatusIdeeVerboseInput",configuration.gateway_conf.stat_format == "idee_verbose");
-      setValue("GatewayIDInput",configuration.gateway_conf.gateway_ID);
-      setValue("DescriptionInput",configuration.gateway_conf.description);
-      setValue("ContactEmailInput",configuration.gateway_conf.contact_email);
-      setValue("GPSlatitudeInput",configuration.gateway_conf.ref_latitude);
-      setValue("GPSlongitudeInput",configuration.gateway_conf.ref_longitude);
-      setValue("GPSaltitudeInput",configuration.gateway_conf.ref_altitude);}
+      if (configuration.hasOwnProperty('web_conf')) 
+      { setValSave("WebUsernameInput",configuration.web_conf,"username");
+        setValSave("WebPasswordInput",configuration.web_conf,"password"); }
+      setChecked("LoginInput",getValue("WebUsernameInput").length>0 && getValue("WebPasswordInput").length>0);
+      if (configuration.hasOwnProperty('gateway_conf')) 
+      { setTristate("BeaconInput",configuration.gateway_conf,"beacon");
+        setTristate("LoggerInput",configuration.gateway_conf,"logger");
+        setTristate("UpstreamInput",configuration.gateway_conf,"upstream");
+        setTristate("DownstreamInput",configuration.gateway_conf,"downstream");
+        setTristate("StatusstreamInput",configuration.gateway_conf,"statusstream");
+        setChecked("StatusSemtechInput",configuration.gateway_conf.stat_format == "semtech");
+        setChecked("StatusIdeeConciseInput",configuration.gateway_conf.stat_format == "idee_concise");
+        setChecked("StatusIdeeVerboseInput",configuration.gateway_conf.stat_format == "idee_verbose");
+        setValSave("ServerAddressInput",configuration.gateway_conf,"server_address") 
+        setValSave("ServerDownPortInput",configuration.gateway_conf,"serv_port_down");
+        setValSave("ServerUpPortInput",configuration.gateway_conf,"serv_port_up");
+        setValue("GatewayIDInput",configuration.gateway_conf.gateway_ID);
+        setValue("DescriptionInput",configuration.gateway_conf.description);
+        setValue("ContactEmailInput",configuration.gateway_conf.contact_email);
+        setValue("GPSlatitudeInput",configuration.gateway_conf.ref_latitude);
+        setValue("GPSlongitudeInput",configuration.gateway_conf.ref_longitude);
+        setValue("GPSaltitudeInput",configuration.gateway_conf.ref_altitude); } }
     require('bonescript').lorankctl("GetConf",callback(proc)); }
 
   function getStats()
@@ -272,7 +305,7 @@
         setTreeVal(setText,statistics,"current");
         setTreeVal(setQual,statistics,"performance");
         setArrayObj(tryBool,statistics,"servers");
-        if (menu=="status") show("statisticsWell"); }
+        if (activeMenu=="menuStatus") show("statisticsWell"); }
       else hide("statisticsWell"); }
 
     require('bonescript').lorankctl("GetStats",callback(proc)); }
@@ -284,8 +317,53 @@
   function isBasicStr(str,maxlen)
   { return (str.length<=maxlen) && (str.indexOf("'")<0) && (str.indexOf('"')<0) }
 
+  function isEmpty(inputID) 
+  { return getValue(inputID).length==0; }
+  
+  function modifyLogin()
+  { var enabled = getChecked("LoginInput"); 
+    if (!enabled)
+    { setValue("WebUsernameInput","");
+      setValue("WebPasswordInput","");
+      delClass("WebUsernameInput","bg-success");
+      delClass("WebUsernameInput","bg-danger");
+      delClass("WebPasswordInput","bg-success");
+      delClass("WebPasswordInput","bg-danger"); }
+    setState("WebUsernameInput",enabled);
+    setState("WebPasswordInput",enabled); }
+
+  function checkServerAddress()
+  { var address = getValue("ServerAddressInput");
+    var succes = (address.length==0) || (isBasicStr(address,256) &&  (/\.+/.test(address)));
+    switchClass(succes,"ServerAddressInput","bg-success","bg-danger");
+    return succes; }
+
+  function checkServerDownPort()
+  { var portStr = getValue("ServerDownPortInput");
+    var port    = parseInt(portStr)
+    var succes = (portStr.length==0) || ( (port>0) && (port<65536) );
+    switchClass(succes,"ServerDownPortInput","bg-success","bg-danger");
+    return succes; }
+
+  function checkServerUpPort()
+  { var portStr = getValue("ServerUpPortInput");
+    var port    = parseInt(portStr)
+    var succes = (portStr.length==0) || ( (port>0) && (port<65536) );
+    switchClass(succes,"ServerUpPortInput","bg-success","bg-danger");
+    return succes; }
+
+  function checkServerCombi() 
+  { var address   = getValue("ServerAddressInput");
+    var portDwStr = getValue("ServerDownPortInput");
+    var portUpStr = getValue("ServerUpPortInput");
+    var succes =  ( (address.length==0) && (portDwStr.length==0) && (portUpStr.length==0) ) || ( (address.length>0) && (portDwStr.length>0) && (portUpStr.length>0) )
+    if (address.length==0)   switchClass(succes,"ServerAddressInput","bg-success","bg-danger");
+    if (portDwStr.length==0) switchClass(succes,"ServerDownPortInput","bg-success","bg-danger");
+    if (portUpStr.length==0) switchClass(succes,"ServerUpPortInput","bg-success","bg-danger");
+    return succes; }
+
   function checkGatewayID()
-  { var gwid = getValue("GatewayIDInput").replace(/[ \.]/g,"")
+  { var gwid = getValue("GatewayIDInput").replace(/[ \.]/g,"");
     var succes = (gwid.length==16) && (/[0-9a-fA-F]{16}/.test(gwid));
     switchClass(succes,"GatewayIDInput","bg-success","bg-danger");
     return succes; }
@@ -296,7 +374,7 @@
     return succes; }
 
   function checkContactEmail()
-  { var email = getValue("ContactEmailInput")
+  { var email = getValue("ContactEmailInput");
     var succes = (email.length==0) || isBasicStr(email,40) && /^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email);
     switchClass(succes,"ContactEmailInput","bg-success","bg-danger");
     return succes; }
@@ -312,24 +390,46 @@
   function checkGPSlongitude() { return checkGPScoor("GPSlongitudeInput",180);  }
   function checkGPSaltitude()  { return checkGPScoor("GPSaltitudeInput",15000); }
 
-  function checkAll()
-  { return checkGatewayID() && checkDescription() && checkContactEmail() &&
-           checkGPSlatitude() && checkGPSlongitude() && checkGPSaltitude(); }
-
-  function checkConf() { return !(typeof configuration.gateway_conf == 'undefined'); }
+  function checkWebUsername()
+  { var name = getValue("WebUsernameInput")
+    var succes = (name.length>0) && isBasicStr(name,64);
+    switchClass(succes,"WebUsernameInput","bg-success","bg-danger");
+    return succes; } 
+    
+  function checkWebPassword()
+  { var pass = getValue("WebPasswordInput")
+    var succes = (pass.length>0) && isBasicStr(pass,64);
+    switchClass(succes,"WebPasswordInput","bg-success","bg-danger");
+    return succes; }
 
   function makeID()
   { function blok() { return " " + ("000"+Math.floor(Math.random()*65536).toString(16)).substr(-4); }
     setValue("GatewayIDInput","1dee" + blok() + blok() + blok());
     checkGatewayID(); }
 
+  function updatePass()
+  { function checkAll() { return checkWebUsername() && checkWebPassword(); }
+    function proc(x)    { footerMessage(x,false,10); }
+    var enabled = getChecked("LoginInput");
+    if (enabled && !checkAll())  footerMessage("Some fields are invalid.",true,5);
+    else
+    { if (!configuration.hasOwnProperty('web_conf')) configuration.web_conf = { };
+      configuration.web_conf.username  = getValue("WebUsernameInput");
+      configuration.web_conf.password  = getValue("WebPasswordInput");
+      var str = JSON.stringify(configuration);
+      require('bonescript').lorankctl("SetConf|"+str,callback(proc)); } }
+
   function updateConf()
-  { function proc(x) { footerMessage(x,false,10); }
+  { function checkAll()
+    { return checkServerAddress() && checkServerDownPort() && checkServerUpPort() && checkServerCombi() &&
+             checkGatewayID() && checkDescription() && checkContactEmail() &&
+             checkGPSlatitude() && checkGPSlongitude() && checkGPSaltitude(); }
+    function proc(x) { footerMessage(x,false,10); }
     if (concentratorRunning)  footerMessage("Cannot update while concentrator is running.",true,5);
-    else if (!checkConf())    footerMessage("No configuration to update.",true,5);
     else if (!checkAll())     footerMessage("Some fields are invalid.",true,5);
     else
-    { if (!getIndet("BeaconInput"))       configuration.gateway_conf.beacon         = getChecked("BeaconInput");
+    { if (!configuration.hasOwnProperty('gateway_conf')) configuration.gateway_conf = { };
+      if (!getIndet("BeaconInput"))       configuration.gateway_conf.beacon         = getChecked("BeaconInput");
       if (!getIndet("LoggerInput"))       configuration.gateway_conf.logger         = getChecked("LoggerInput");
       if (!getIndet("UpstreamInput"))     configuration.gateway_conf.upstream       = getChecked("UpstreamInput");
       if (!getIndet("DownstreamInput"))   configuration.gateway_conf.downstream     = getChecked("DownstreamInput");
@@ -340,8 +440,11 @@
       configuration.gateway_conf.contact_email  = getValue("ContactEmailInput") ;
       configuration.gateway_conf.ref_latitude   = parseFloat(getValue("GPSlatitudeInput"));
       configuration.gateway_conf.ref_longitude  = parseFloat(getValue("GPSlongitudeInput"));
-      configuration.gateway_conf.ref_altitude   = parseFloat(getValue("GPSaltitudeInput"));
-      var str=JSON.stringify(configuration);
+      configuration.gateway_conf.ref_altitude   = parseFloat(getValue("GPSaltitudeInput")); 
+      if (isEmpty("ServerAddressInput"))  delete configuration.gateway_conf.server_address; else configuration.gateway_conf.server_address = getValue("ServerAddressInput");
+      if (isEmpty("ServerDownPortInput")) delete configuration.gateway_conf.serv_port_down; else configuration.gateway_conf.serv_port_down = parseInt(getValue("ServerDownPortInput"));
+      if (isEmpty("ServerUpPortInput"))   delete configuration.gateway_conf.serv_port_up;   else configuration.gateway_conf.serv_port_up   = parseInt(getValue("ServerUpPortInput"));
+      var str = JSON.stringify(configuration);
       require('bonescript').lorankctl("SetConf|"+str,callback(proc)); } }
 
   function startConcentrator()
@@ -359,6 +462,8 @@
     <li id="menuStatus" role="presentation" class="active"><a href="#" onclick="actStatus()">Status</a></li>
     <li id="menuAdmin"  role="presentation" class=""><a href="#" onclick="actAdmin()">Admin</a></li>
     <li id="menuLogs"   role="presentation" class=""><a href="#" onclick="actLogs()">Logs</a></li>
+    <li id="menuAccess" role="presentation" class="hidden"><a href="#" onclick="actAccess()">Access</a></li>
+    <li id="menuLogout" role="presentation" class="hidden"><a href="/logout">Logout</a></li>
   </ul>
 </div>
 
@@ -532,7 +637,7 @@
   </div>
   <br/>
 
- <div style="display:flex">
+  <div style="display:flex">
     <div class="front">System Info</div>
     <input class="back" id="Uname" readonly>
   </div>
@@ -571,7 +676,7 @@
     </div>
   </div>
   <br/>
-
+ 
   <button type="button" class="btn btn-info hidden">Check for Updates</button>
   <button type="button" class="btn btn-info" onclick="startConcentrator()">Start Concentrator</button>
   <button type="button" class="btn btn-warning" onclick="simpleAction('DoStopConc')">Stop Concentrator</button>
@@ -654,6 +759,25 @@
   </div>
   <br/>
 
+  <p>Per default data is sent to both European servers of The Things Network and the Semtech. You may set different server parameters in
+  the fields below which deactivate the default. These values are only used for the open source poly packet forwarder and Semtech packet forwarder,
+  and not for the Loriot backend. Leave all fields empty for the default servers from global_conf.json.</p>
+  <div style="display:flex">
+    <div class="front">IP or domain</div>
+    <input class="back" id="ServerAddressInput" onkeyup="checkServerAddress()">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">Downstream Port</div>
+    <input class="back" id="ServerDownPortInput" onkeyup="checkServerDownPort()">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">Upstream Port</div>
+    <input class="back" id="ServerUpPortInput" onkeyup="checkServerUpPort()">
+  </div>
+  <br/>
+
   <button id="getConfBtn" type="button" class="btn btn-info"    onclick="getConf()">Get Configuration</button>
   <button id="makeIDBtn"  type="button" class="btn btn-info"    onclick="makeID()">Make New ID</button>
   <button id="setConfBtn" type="button" class="btn btn-warning" onclick="updateConf()">Update Configuration</button>
@@ -662,21 +786,53 @@
 
 <div id="logsWell" class="well hidden">
 
- <button type="button" class="btn btn-info" onclick="getLogging('50')">Get last 50 lines</button>
- <button type="button" class="btn btn-info" onclick="getLogging('200')">Get last 200 lines</button>
- <!-- following butons can leave processes running on Lorank, disable for now -->
- <button type="button" class="btn btn-info hidden" onclick="getLogging('On')">Follow On</button>
- <button type="button" class="btn btn-info hidden" onclick="getLogging('Off')">Follow Off</button>
- <br/>
- <br/>
- <div  class="panel panel-info">
-
-  <div class="panel-heading">Last logs</div>
-  <div  class="panel-body">
-  <pre id="loggingPanel"> </pre>
+  <button type="button" class="btn btn-info" onclick="getLogging('50')">Get last 50 lines</button>
+  <button type="button" class="btn btn-info" onclick="getLogging('200')">Get last 200 lines</button>
+  <!-- following butons can leave processes running on Lorank, disable for now -->
+  <button type="button" class="btn btn-info hidden" onclick="getLogging('On')">Follow On</button>
+  <button type="button" class="btn btn-info hidden" onclick="getLogging('Off')">Follow Off</button>
+  <br/>
+  <br/>
+  <div  class="panel panel-info">
+  
+    <div class="panel-heading">Last logs</div>
+    <div  class="panel-body">
+      <pre id="loggingPanel"> </pre>
+    </div>
 
   </div>
+
+</div>
+
+<div id="accessWell" class="well hidden">
+
+  <p> It is possible to set a username and password to protect against accidental misuse of this website. However,
+  this offers no protection to eavesdropping, since the password is marshalled in clear text over the network
+  to your gateway. Remember that the Lorank 8 should be operated behind a firewall and shielded from the internet
+  or any other networks you do not trust. </p>
+  <p>Activation or deactivation of the login facility requires a reboot. Please perform this manually on the
+  'Admin' page after the credentials have been updated. Just changing the username and/or password does
+  not require a reboot, just an 'update credentials' and is effective immediately. Should you forget the
+  credentials, use ssh to login to the Lorank 8 directly and edit the local_conf.json.</p>
+
+  <div style="display:flex">
+     <div class="front">Use Login</div>
+     <span><input class="back" id="LoginInput" type="checkbox" onchange="modifyLogin()">&nbsp;&nbsp;Please reboot after 'Update credentials' to activate if changed.</span>
   </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">Username</div>
+    <input class="back" id="WebUsernameInput" onkeyup="checkWebUsername()">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">Password</div>
+    <input class="back" id="WebPasswordInput" onkeyup="checkWebPassword()">
+  </div>
+  <br/>
+
+  <button id="setPassBtn" type="button" class="btn btn-warning" onclick="updatePass()">Update credentials</button>
+
 
 </div>
 

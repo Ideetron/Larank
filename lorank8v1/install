@@ -3,7 +3,7 @@
 # Start this script with the software version number as argument
 # In the directory you cloned the repro Lorank in.
 # This script is NOT suitable for upgrading, but only for one time
-# initialization of a clean BeagleBordBlack.
+# initialization of a clean Beagle Bone.
 
 # Control of urs leds
 function led_on    { pushd /sys/class/leds/beaglebone\:green\:usr$1; echo none  > trigger; echo 1 > brightness; popd; }

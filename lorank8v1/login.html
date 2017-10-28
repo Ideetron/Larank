@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+
+<!--
+  Copyright (c) 2016, Beta Research BV (Ruud Vlaming). All rights reserved.
+  Use of this source code is governed by a GPL-v3 license.
+-->
+
+<html>
+<head>
+    <meta charset="utf-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Lorank 8 - Login</title>
+    <link href="static/bootstrap.min.css" rel="stylesheet">
+    <script src="static/bootstrap.min.js"></script>
+
+  <style type="text/css">
+  pre { height: 500px; }
+  .front
+  { width: 120px;
+    display: inline-block; }
+  .back
+  { flex:1; }
+
+  .dl-wide dd
+  { margin-left: 190px; }
+  .dl-wide dt
+  { min-width: 140px;
+    width: 170px; }
+
+  .dl-narrow dd
+  { margin-left: 90px; }
+  .dl-narrow dt
+  { min-width: 40px;
+    width: 70px; }
+  </style>
+
+</head>
+<body>
+
+  <div class="container-fluid">
+    <div class="well">
+      <form action="/login" method="post">
+        <div>
+          <label class="front" >Username:</label>
+          <input class="back" type="text" name="username"/>
+        </div>
+        <div>
+          <label class="front">Password:</label>
+          <input class="back"  type="password" name="password"/>
+        </div>
+        <br/>
+        <div>
+          <input type="button" class="btn btn-info" type="submit" value="Log In"/>
+        </div>
+      </form>
+    </div>
+  </div>
+
+
+</body>
+</html>
+

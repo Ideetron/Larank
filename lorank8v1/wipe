@@ -19,7 +19,7 @@ if [[ $1 != "--force" ]]
 then
   echo "INFO: Option --force is required to prevent accidental wiping of Lorank services."
   echo "This script deletes Lorank software AND bootup services required to reset hardware."
-  echo "There are valid reasons for use, but a software upgrade is NOT one of them."
+  echo "There are valid reasons for use, but a simple software upgrade is NOT one of them."
   echo "After a wipe, complete reinstall of lora software is required, use with extreme care."
   echo "In case of doubt, do NOT use."
   exit
@@ -43,23 +43,16 @@ fi
 
 
 # Restore the webpage
-if [ -e /root/savesys/cloud9_index.html ]
-then
-  rm -f /var/lib/cloud9/index.html
-  rm -f /var/lib/cloud9/images/photo.jpg
-  cp -af /root/savesys/cloud9_index.html /var/lib/cloud9/index.html
-fi
+rm -f /var/lib/cloud9/login.html
+rm -f /var/lib/cloud9/images/photo.jpg
+cp -af /root/savesys/cloud9_index.html /var/lib/cloud9/index.html 2>/dev/null || :
 
 
 # Restore the bonescript
-if [ -e /root/savesys/bonescript_index.js ]
-then
-  cp -af /root/savesys/bonescript_index.js /usr/local/lib/node_modules/bonescript/index.js
-elif [ -e /root/savesys/bonescript_src_index.js ]
-then
-  cp -af /root/savesys/bonescript_src_index.js /usr/local/lib/node_modules/bonescript/src/index.js
-fi
-
+cp -af /root/savesys/bonescript_index.js       /usr/local/lib/node_modules/bonescript/index.js       2>/dev/null || :
+cp -af /root/savesys/bonescript_server.js      /usr/local/lib/node_modules/bonescript/server.js      2>/dev/null || :
+cp -af /root/savesys/bonescript_src_index.js   /usr/local/lib/node_modules/bonescript/src/index.js   2>/dev/null || :
+cp -af /root/savesys/bonescript_src_server.js  /usr/local/lib/node_modules/bonescript/src/server.js  2>/dev/null || :
 
 # Remove Lorank startup services
 systemctl stop lorank.service

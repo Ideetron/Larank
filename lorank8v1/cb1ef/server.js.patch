@@ -1,0 +1,84 @@
+*** server-2015-old.js	Sat Oct 28 17:33:19 2017
+--- server-2015-new.js	Sat Oct 28 17:35:37 2017
+***************
+*** 7,16 ****
+--- 7,58 ----
+  var url = require('url');
+  var winston = require('winston');
+  var b = require('../bonescript');
+  var socketio = require('socket.io');
+  var express = require('express');
++ var passport = require('passport'); 
++ var LocalStrategy = require('passport-local').Strategy;
++ var express_session = require('express-session');
++ var bodyParser = require('body-parser');
++ var connectEnsure = require('connect-ensure-login');
++ 
++ var localConf = '/root/lorank8v1/local_conf.json';
++ 
++ passport.serializeUser(function(user, cb) { cb(null, user); });
++ passport.deserializeUser(function(id, cb) { cb(null, id); });
++ 
++ passport.use(new LocalStrategy(validateCreds));
++ 
++ function validCreds()
++ { try
++   { var lcContent = fs.readFileSync(localConf, 'utf8');
++     var creds = JSON.parse(lcContent).web_conf;
++     return (creds.username.length > 0) && (creds.password.length > 0); }
++   catch (e) { return false; } }
++ 
++ function validateCreds(username, password, cb)
++ { try
++   { var lcContent = fs.readFileSync(localConf, 'utf8');
++     var creds = JSON.parse(lcContent).web_conf;
++     if(creds.username == username.trim() && creds.password == password.trim())
++     { console.log(username + " logged in");
++       cb(null, username); } 
++     else cb(null, false); }
++   catch (e) { cb(null, username); } }
++ 
++ function sendSpecFile(res, fileName) {
++   var localRoot = '/var/lib/cloud9';
++   console.log('sendSpecFile');
++   function sendFile(err, file) 
++   { if(err) 
++     { res.writeHead(500, {"Content-Type": "text/plain"});
++       res.end(err + '\n');
++       return; }
++     res.setHeader('Content-Type', 'text/html');
++     res.end(file); }
++   fs.readFile(localRoot.concat(fileName), 'utf8', sendFile); }
++ 
+  
+  myrequire('systemd', function() {
+      winston.debug("Startup as socket-activated service under systemd not enabled");
+  });
+  
+***************
+*** 18,27 ****
+--- 60,83 ----
+  listen(port, '/var/lib/cloud9');
+  
+  function listen(port, directory) {
+      var app = express();
+      app.use(express.logger());
++     // only enable authentication if there are any credentials stored in the configuration file
++     if (validCreds())
++     { app.use(express_session({ secret: 'geheim', resave: false, saveUninitialized: false }));
++       app.use(passport.initialize());
++       app.use(passport.session());
++       app.use(bodyParser.urlencoded({ extended: true }));
++       // overwrite catch-all route for the static resources (so we can use css on the login page)
++       app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), function(req, res){ res.redirect('/'); });
++       app.use('/static', express.static(directory+"/static"));
++       // overwrite catch-all route for the login page to prevent infinite redirection
++       app.get('/login',  function(req, res, next){ sendSpecFile(res,"/login.html"); });
++       app.get('/logout', function(req, res, next){ req.logout(); res.redirect('/'); });
++       // catch-all route: require to be logged in to access any file
++       app.use(connectEnsure.ensureLoggedIn('/login')); }
+      app.get('/bonescript.js', handler);
+      app.use(express.static(directory));
+      var server = http.createServer(app);
+      addSocketListeners(server);
+      server.listen(port);

@@ -226,9 +226,9 @@
         "serv_port_down": 1681,
         /* node servers for poly packet server (max 4 enabled, rest is ignored) */
         "servers":
-        [ { "server_address": "iot.semtech.com",
-            "serv_port_up": 1680,
-            "serv_port_down": 1680,
+        [ { "server_address": "52.18.106.103",
+            "serv_port_up": 20000,
+            "serv_port_down": 20000,
             "serv_max_stall": 0,
             "serv_enabled": true },
           { "server_address": "eu.thingsnetwork.org",

@@ -241,6 +241,7 @@
       { setValSave("WebUsernameInput",configuration.web_conf,"username");
         setValSave("WebPasswordInput",configuration.web_conf,"password"); }
       setChecked("LoginInput",getValue("WebUsernameInput").length>0 && getValue("WebPasswordInput").length>0);
+      modifyLogin();
       if (configuration.hasOwnProperty('gateway_conf')) 
       { setTristate("BeaconInput",configuration.gateway_conf,"beacon");
         setTristate("LoggerInput",configuration.gateway_conf,"logger");

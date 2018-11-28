@@ -1,0 +1,6 @@
+65c65,67
+< #cape_enable=bone_capemgr.enable_partno=
+---
+> 
+> ##SPI0
+> cape_enable=bone_capemgr.enable_partno=BB-SPIDEV0

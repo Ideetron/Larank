@@ -62,3 +62,11 @@ passwd debian -l
 
 # Set a password for the root (user must change this on first use!)
 echo "root:LorankAdmin" | chpasswd
+
+# Sometimes, there is no root access allowed over shh. 
+if [ ! -e Lorank/$TARGETDIR/$DTSHORT/sshd.patch ]
+then
+  cp -a /etc/ssh/sshd_config /root/savesys/sshd_config
+  patch /etc/ssh/sshd_config Lorank/$TARGETDIR/$DTSHORT/sshd.patch
+fi
+

@@ -1,0 +1,10 @@
+--- org/sshd_config	2018-11-27 21:27:37.975138871 +0000
++++ new/sshd_config	2018-11-27 21:31:41.540327876 +0000
+@@ -27,6 +27,7 @@
+ #LogLevel INFO
+ 
+ # Authentication:
++PermitRootLogin yes
+ 
+ #LoginGraceTime 2m
+ #PermitRootLogin prohibit-password

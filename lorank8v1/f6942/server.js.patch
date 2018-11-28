@@ -1,0 +1,76 @@
+*** /old/server.js   Wed Nov 28 12:53:33 2018
+--- /new/server.js   Wed Nov 28 13:09:16 2018
+***************
+*** 5,19 ****
+--- 5,48 ----
+  var http = require('http');
+  var winston = require('winston');
+  var express = require('express');
+  var events = require('events');
+  var socketHandlers = require('./socket_handlers');
++ var passport = require('passport'); 
++ var LocalStrategy = require('passport-local').Strategy;
++ var express_session = require('express-session');
++ var bodyParser = require('body-parser');
++ var connectEnsure = require('connect-ensure-login');
+  
+  var serverEmitter = new events.EventEmitter();
+  
+  var debug = process.env.DEBUG ? true : false;
+  
++ var localConf = '/root/lorank8v1/local_conf.json';
++ 
++ passport.serializeUser(function(user, cb) { cb(null, user); });
++ passport.deserializeUser(function(id, cb) { cb(null, id); });
++ 
++ passport.use(new LocalStrategy(validateCreds));
++ 
++ function validCreds()
++ { try
++   { var lcContent = fs.readFileSync(localConf, 'utf8');
++     var creds = JSON.parse(lcContent).web_conf;
++     return (creds.username.length > 0) && (creds.password.length > 0); }
++   catch (e) { return false; } }
++ 
++ function validateCreds(username, password, cb)
++ { try
++   { var lcContent = fs.readFileSync(localConf, 'utf8');
++     var creds = JSON.parse(lcContent).web_conf;
++     if(creds.username == username.trim() && creds.password == password.trim())
++     { console.log(username + " logged in");
++       cb(null, username); } 
++     else cb(null, false); }
++   catch (e) { cb(null, username); } }
++ 
+  myrequire('systemd', function() {
+      if(debug) winston.debug("Startup as socket-activated service under systemd not enabled");
+  });
+  
+  exports.serverStart = function(port, directory, callback) {
+***************
+*** 40,49 ****
+--- 69,92 ----
+  };
+  
+  function mylisten(port, directory) {
+      winston.info("Opening port " + port + " to serve up " + directory);
+      var app = express();
++     // only enable authentication if there are any credentials stored in the configuration file
++     if (validCreds())
++     { app.use(express_session({ secret: 'geheim', resave: false, saveUninitialized: false }));
++       app.use(passport.initialize());
++       app.use(passport.session());
++       app.use(bodyParser.urlencoded({ extended: true }));
++       // overwrite catch-all route for the static resources (so we can use css on the login page)
++       app.post('/login', passport.authenticate('local', { failureRedirect: '/login' }), function(req, res){ res.redirect('/'); });
++       app.use('/static', express.static(directory+"/static"));
++       // overwrite catch-all route for the login page to prevent infinite redirection
++       app.get('/login',  function(req, res, next){ res.sendFile("/login.html", {root : directory}); });
++       app.get('/logout', function(req, res, next){ req.logout(); res.redirect('/'); });
++       // catch-all route: require to be logged in to access any file
++       app.use(connectEnsure.ensureLoggedIn('/login')); }
+      app.get('/bonescript.js', socketHandlers.socketJSReqHandler);
+      app.use('/bone101', express.static(directory));
+      app.use('/bone101/static', express.static(directory+"/static"));
+      app.use(express.static(directory));
+      var server = http.createServer(app);

@@ -41,6 +41,11 @@ then
   cp -af /root/savesys/boot_uboot_uEnv.txt /boot/uboot/uEnv.txt
 fi
 
+# Restore the system environment
+if [ -e /root/savesys/sshd_config ]
+then
+  cp -af /root/savesys/sshd_config /etc/ssh/sshd_config
+fi
 
 # Restore the webpage
 rm -f /var/lib/cloud9/login.html

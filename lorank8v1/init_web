@@ -29,22 +29,20 @@ mkdir -p /root/savesys
 # Load a basic webpage
 if [ -e /var/lib/cloud9/index.html ]
 then
-  mkdir -p /var/lib/cloud9/images
-  cp -n /var/lib/cloud9/index.html /root/savesys/cloud9_index.html
-  cp Lorank/$TARGETDIR/index.html  /var/lib/cloud9/index.html
-  cp Lorank/$TARGETDIR/login.html  /var/lib/cloud9/login.html
-  cp Lorank/$TARGETDIR/photo.jpg   /var/lib/cloud9/images/photo.jpg
+  WT=/var/lib/cloud9
+  cp -n $WT/index.html /root/savesys/cloud9_index.html
 elif [ -e /usr/share/bone101/index.html ]
 then
-  mkdir -p /usr/share/bone101/images
-  cp -n /usr/share/bone101/index.html /root/savesys/bone101_index.html
-  cp Lorank/$TARGETDIR/index.html  /usr/share/bone101/index.html
-  cp Lorank/$TARGETDIR/login.html  /usr/share/bone101/login.html
-  cp Lorank/$TARGETDIR/photo.jpg   /usr/share/bone101/images/photo.jpg
+  WT=/usr/share/bone101
+  cp -n $WT/index.html /root/savesys/bone101_index.html
 else
   echo "Could find not index.html file to patch."
   exit 1
 fi
+mkdir -p $WT/images
+cp Lorank/$TARGETDIR/index.html  $WT/index.html
+cp Lorank/$TARGETDIR/login.html  $WT/login.html
+cp Lorank/$TARGETDIR/photo.jpg   $WT/images/photo.jpg
 
 # Patch the bonescript file, if possible
 if [ -e /usr/local/lib/node_modules/bonescript/index.js ]
@@ -65,10 +63,10 @@ else
 fi
 
 # Localize files for off-line use
-wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css
-wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css.map
-wget -nv -nc -P/var/lib/cloud9/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js
-wget -nv -nc -P/var/lib/cloud9/static https://code.jquery.com/jquery-1.12.2.min.js
+wget -nv -nc -P $WT/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css
+wget -nv -nc -P $WT/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css.map
+wget -nv -nc -P $WT/static https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/js/bootstrap.min.js
+wget -nv -nc -P $WT/static https://code.jquery.com/jquery-1.12.2.min.js
 
 # install additional nodeJS modules
 NPM_MODS="passport passport-local body-parser express-session connect-ensure-login" 

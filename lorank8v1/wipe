@@ -54,6 +54,7 @@ then
   rm -f /var/lib/cloud9/images/photo.jpg
   cp -af /root/savesys/cloud9_index.html /var/lib/cloud9/index.html 2>/dev/null || :
 elif [ -e /root/savesys/bone101_index.html ]
+then
   rm -f /usr/share/bone101/login.html
   rm -f /usr/share/bone101/images/photo.jpg
   cp -af /root/savesys/bone101_index.html /usr/share/bone101/index.html 2>/dev/null || :

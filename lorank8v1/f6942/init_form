@@ -19,3 +19,6 @@ fi
 apt-get -y -q --purge remove x11-*
 apt-get -y -q autoremove
 
+# Doing that again get rid of even more.
+apt-get -y -q --purge remove x11-*
+apt-get -y -q autoremove

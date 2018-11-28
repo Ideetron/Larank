@@ -27,11 +27,24 @@ fi
 mkdir -p /root/savesys
 
 # Load a basic webpage
-mkdir -p /var/lib/cloud9/images
-cp -n /var/lib/cloud9/index.html /root/savesys/cloud9_index.html
-cp Lorank/$TARGETDIR/index.html  /var/lib/cloud9/index.html
-cp Lorank/$TARGETDIR/login.html  /var/lib/cloud9/login.html
-cp Lorank/$TARGETDIR/photo.jpg   /var/lib/cloud9/images/photo.jpg
+if [ -e /var/lib/cloud9/index.html ]
+then
+  mkdir -p /var/lib/cloud9/images
+  cp -n /var/lib/cloud9/index.html /root/savesys/cloud9_index.html
+  cp Lorank/$TARGETDIR/index.html  /var/lib/cloud9/index.html
+  cp Lorank/$TARGETDIR/login.html  /var/lib/cloud9/login.html
+  cp Lorank/$TARGETDIR/photo.jpg   /var/lib/cloud9/images/photo.jpg
+elif [ -e /usr/share/bone101/index.html ]
+then
+  mkdir -p /usr/share/bone101/images
+  cp -n /usr/share/bone101/index.html /root/savesys/bone101_index.html
+  cp Lorank/$TARGETDIR/index.html  /usr/share/bone101/index.html
+  cp Lorank/$TARGETDIR/login.html  /usr/share/bone101/login.html
+  cp Lorank/$TARGETDIR/photo.jpg   /usr/share/bone101/images/photo.jpg
+else
+  echo "Could find not index.html file to patch."
+  exit 1
+fi
 
 # Patch the bonescript file, if possible
 if [ -e /usr/local/lib/node_modules/bonescript/index.js ]
@@ -40,14 +53,15 @@ then
   cp -n     /usr/local/lib/node_modules/bonescript/server.js /root/savesys/bonescript_server.js
   patch -lN /usr/local/lib/node_modules/bonescript/index.js  Lorank/$TARGETDIR/$DTSHORT/index.js.patch  || true
   patch -lN /usr/local/lib/node_modules/bonescript/server.js Lorank/$TARGETDIR/$DTSHORT/server.js.patch || true
-elif [ -e   /usr/local/lib/node_modules/bonescript/src/index.js ]
+elif [ -e /usr/local/lib/node_modules/bonescript/src/index.js ]
 then
   cp -n     /usr/local/lib/node_modules/bonescript/src/index.js  /root/savesys/bonescript_src_index.js
   cp -n     /usr/local/lib/node_modules/bonescript/src/server.js /root/savesys/bonescript_src_server.js
   patch -lN /usr/local/lib/node_modules/bonescript/src/index.js  Lorank/$TARGETDIR/$DTSHORT/index.js.patch  || true
   patch -lN /usr/local/lib/node_modules/bonescript/src/server.js Lorank/$TARGETDIR/$DTSHORT/server.js.patch || true
 else
-  echo "Could find no bonescript index.js file to patch, hope that's okay."
+  echo "Could find not bonescript index.js file to patch."
+  exit 1
 fi
 
 # Localize files for off-line use

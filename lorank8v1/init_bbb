@@ -33,12 +33,12 @@ systemctl enable lorank.service
 # Disable HDMI on the BBB, enable SPI
 if [ -e /boot/uEnv.txt ]
 then
-  cp -a /boot/uEnv.txt /root/savesys/boot_uEnv.txt
-  patch /boot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch
+  cp -an /boot/uEnv.txt /root/savesys/boot_uEnv.txt
+  patch -lN /boot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch
 elif [ -e /boot/uboot/uEnv.txt ]
 then
-  cp -a /boot/uboot/uEnv.txt /root/savesys/boot_uboot_uEnv.txt
-  patch /boot/uboot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch
+  cp -an /boot/uboot/uEnv.txt /root/savesys/boot_uboot_uEnv.txt
+  patch -lN /boot/uboot/uEnv.txt Lorank/$TARGETDIR/$DTSHORT/uEnv.patch
 else
   echo "Could not patch uEnv.txt"
   exit 1
@@ -63,10 +63,10 @@ passwd debian -l
 # Set a password for the root (user must change this on first use!)
 echo "root:LorankAdmin" | chpasswd
 
-# Sometimes, there is no root access allowed over shh. 
+# Sometimes, there is no root access allowed over shh.
 if [ ! -e Lorank/$TARGETDIR/$DTSHORT/sshd.patch ]
 then
-  cp -a /etc/ssh/sshd_config /root/savesys/sshd_config
-  patch /etc/ssh/sshd_config Lorank/$TARGETDIR/$DTSHORT/sshd.patch
+  cp -an /etc/ssh/sshd_config /root/savesys/sshd_config
+  patch -lN /etc/ssh/sshd_config Lorank/$TARGETDIR/$DTSHORT/sshd.patch
 fi
 

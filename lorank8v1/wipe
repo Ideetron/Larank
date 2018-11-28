@@ -48,10 +48,18 @@ then
 fi
 
 # Restore the webpage
-rm -f /var/lib/cloud9/login.html
-rm -f /var/lib/cloud9/images/photo.jpg
-cp -af /root/savesys/cloud9_index.html /var/lib/cloud9/index.html 2>/dev/null || :
-
+if [ -e /root/savesys/cloud9_index.html ]
+then
+  rm -f /var/lib/cloud9/login.html
+  rm -f /var/lib/cloud9/images/photo.jpg
+  cp -af /root/savesys/cloud9_index.html /var/lib/cloud9/index.html 2>/dev/null || :
+elif [ -e /root/savesys/bone101_index.html ]
+  rm -f /usr/share/bone101/login.html
+  rm -f /usr/share/bone101/images/photo.jpg
+  cp -af /root/savesys/bone101_index.html /usr/share/bone101/index.html 2>/dev/null || :
+else
+  echo "Cannot restore the default webpage. Sorry."
+fi
 
 # Restore the bonescript
 cp -af /root/savesys/bonescript_index.js       /usr/local/lib/node_modules/bonescript/index.js       2>/dev/null || :

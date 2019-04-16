@@ -1,6 +1,4 @@
-65c65,67
-< #cape_enable=bone_capemgr.enable_partno=
----
-> 
+66a67,69
 > ##SPI0
-> cape_enable=bone_capemgr.enable_partno=BB-SPIDEV0
+> uboot_overlay_addr4=/lib/firmware/BB-SPIDEV0-00A0.dtbo
+> 

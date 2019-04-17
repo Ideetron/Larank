@@ -57,16 +57,16 @@ then
   ssh-keygen -t rsa -N "" -f /root/.ssh/id_rsa
 fi
 
-# Disable the default debian login
-passwd debian -l
-
 # Set a password for the root (user must change this on first use!)
 echo "root:LorankAdmin" | chpasswd
 
 # Sometimes, there is no root access allowed over shh.
-if [ ! -e Lorank/$TARGETDIR/$DTSHORT/sshd.patch ]
+# Disable the default debian login only when patch succeeds or is not needed
+if [ -e Lorank/$TARGETDIR/$DTSHORT/sshd.patch ]
 then
   cp -an /etc/ssh/sshd_config /root/savesys/sshd_config
-  patch -lN /etc/ssh/sshd_config Lorank/$TARGETDIR/$DTSHORT/sshd.patch
+  patch -lN /etc/ssh/sshd_config Lorank/$TARGETDIR/$DTSHORT/sshd.patch && passwd debian -l
+else
+  passwd debian -l
 fi
 

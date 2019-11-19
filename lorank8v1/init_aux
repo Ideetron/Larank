@@ -18,3 +18,10 @@ fi
 pushd Lorank/$TARGETDIR
 g++ -O2 -Wall ResetIC880A.cpp -o ResetIC880A
 popd
+
+# Install a script to guard the internet connection.
+cp Lorank/$TARGETDIR/restart       $TARGETDIR/
+
+# Install the configuration files for remote contol
+cp Lorank/$TARGETDIR/ngrok_conf.json    $TARGETDIR/
+cp Lorank/$TARGETDIR/remote.env         $TARGETDIR/

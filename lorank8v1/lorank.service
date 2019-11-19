@@ -4,7 +4,7 @@ Description=Lorank activation
 [Service]
 WorkingDirectory=/root/lorank8v1/
 ExecStart=/root/lorank8v1/start
-SyslogIdentifier=lorank8v1
+SyslogIdentifier=lorank8v1.forwarder
 Restart=on-failure
 RestartSec=5
 

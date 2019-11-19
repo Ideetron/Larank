@@ -1,0 +1,12 @@
+#! /bin/bash
+
+# keep trying the internet connection, with some rome for hickups,
+# and reboot when there is no connection for at least one minute.
+# Do nothing if the startup parameter is less then 10 minutes.
+while [ $1 -gt 599 ]; do
+  sleep $1
+  output=$(ping -q -c4 -i15 google.com 2>&1 | grep packets)
+  status=$?
+  logger "ping google.com => $output"
+  if [ $status -ne 0 ] ; then /sbin/reboot; fi
+done

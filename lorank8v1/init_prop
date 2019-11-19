@@ -28,8 +28,8 @@ mkdir -p Lorank/Loriot
 
 # Get the ngrok binairy for remote maintenance
 pushd Lorank/Ngrok
-wget -nv -N https://github.com/Ideetron/Lorank/raw/master/$TARGETDIR/ngrok_latest.gz
-gunzip -c ngrok_latest.gz > /usr/bin/ngrok
+wget -nv -N https://github.com/Ideetron/Lorank/raw/master/$TARGETDIR/ngrok_2.3.25.gz
+gunzip -c ngrok_2.3.25.gz > /usr/bin/ngrok
 chown root:root /usr/bin/ngrok
 chmod u+x /usr/bin/ngrok
 popd

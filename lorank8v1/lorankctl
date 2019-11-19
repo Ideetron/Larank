@@ -4,6 +4,7 @@ LOCDIR="/root/lorank8v1"
 LOCCONF="$LOCDIR/local_conf.json"
 LOCSTAT="$LOCDIR/stats.txt"
 LOCFRWD="$LOCDIR/forwarder"
+LOCRMTE="$LOCDIR/remote.env"
 
 function startConcentrator
 { if [[ $1 == "fw_poly" ]] || [[ $1 == "fw_semtech" ]] || [[ $1 == "fw_loriot" ]]
@@ -18,7 +19,32 @@ function startConcentrator
 function stopConcentrator
 { systemctl stop lorank.service
   echo "{}" > $LOCSTAT
-  echo "Stopping Concentrator ... ";
+  echo "Stopping Concentrator ... "
+}
+
+function modRemote
+{ systemctl stop restart.service 
+  systemctl disable restart.service > /dev/null 2>&1 
+  systemctl stop ngrok.service
+  systemctl disable ngrok.service > /dev/null 2>&1 
+  if   [[ $1 == "true"  ]] &&  [[ $2 == "false" ]]; then echo "TNL=ssh" > $LOCRMTE;
+  elif [[ $1 == "false" ]] &&  [[ $2 == "true"  ]]; then echo "TNL=web" > $LOCRMTE;
+  elif [[ $1 == "true"  ]] &&  [[ $2 == "true"  ]]; then echo "TNL=ssh web" > $LOCRMTE;
+  else                                                   echo "TNL=" > $LOCRMTE;
+  fi
+  echo "RBT=$3" >> $LOCRMTE;
+  sleep 1
+  if [[ $1 == "true"  ]] || [[ $2 == "true" ]]
+  then
+    systemctl enable ngrok.service > /dev/null 2>&1 
+    systemctl start ngrok.service 
+  fi  
+  if [ $3 -gt 0 ]
+  then 
+    systemctl enable restart.service > /dev/null 2>&1 
+    systemctl start restart.service 
+  fi
+  echo "Processing remote ... "
 }
 
 if   [[  $1 == "DoShutdown"    ]]; then shutdown -h now && echo "Shutting down ...";
@@ -44,6 +70,7 @@ elif [[  $1 == "GetLogsOff"    ]]; then killall tail;
 elif [[  $1 == "GetDiskfree"   ]]; then df -BM | grep -e "%[[:space:]]/$" | head -n 1 |  tr -s ' ';
 elif [[  $1 == "GetConf"       ]]; then cat $LOCCONF | sed -r ':a; s%(.*)/\*.*\*/%\1%; ta; /\/\*/ !b; N; ba';
 elif [[  $1 == "SetConf"       ]]; then echo -n $2 > $LOCCONF && echo "Updating local_conf.json ...";
+elif [[  $1 == "SetRemote"     ]]; then modRemote $2;
 else logger -s "ERROR: lorankctl received unknown command: $1"
 fi
 

@@ -1,0 +1,14 @@
+[Unit]
+Description=Lorank restart
+
+[Service]
+WorkingDirectory=/root/lorank8v1/
+EnvironmentFile=/root/lorank8v1/remote.env 
+ExecStart=/root/lorank8v1/restart $RBT
+SyslogIdentifier=lorank8v1.restart
+Type=simple
+Restart=always
+RestartSec=120
+
+[Install]
+WantedBy=multi-user.target

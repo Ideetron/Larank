@@ -108,7 +108,7 @@
   { setHTML("footerText",message);
     if (isError) switchClass(false,"footerText","alert-info","alert-danger");
     else         switchClass(false,"footerText","alert-info","alert-success");
-    setTimeout(footerClean,timeout*1000); }
+    if (timeout>0) setTimeout(footerClean,timeout*1000); }
 
   function switchClass(cond,id,trueCl,falseCl)
   { if (cond)
@@ -127,6 +127,7 @@
     delClass("menuAdmin","active"); 
     delClass("menuLogs","active"); 
     delClass("menuAccess","active");  
+    delClass("menuRemote","active");  
     activeMenu = menuID;
     addClass(menuID,"active"); }
     
@@ -136,26 +137,38 @@
     if (showableStatistics) show("statisticsWell");
     hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
     hide("logsWell"); 
-    hide("accessWell"); }
+    hide("accessWell"); 
+    hide("remoteWell"); }
   function actAdmin()
   { getForwarder();
     activate("menuAdmin");
     hide("statusWell");      hide("statisticsWell");
     show("adminConfigWell"); show("adminForwarderWell");  show("adminSystemInfoWell");
     hide("logsWell"); 
-    hide("accessWell"); }
+    hide("accessWell"); 
+    hide("remoteWell"); }
   function actLogs()
   { activate("menuLogs");
     hide("statusWell");      hide("statisticsWell");
     hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
     show("logsWell"); 
-    hide("accessWell"); }
+    hide("accessWell"); 
+    hide("remoteWell"); }
   function actAccess()
   { activate("menuAccess");
     hide("statusWell");      hide("statisticsWell");
     hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
     hide("logsWell"); 
-    show("accessWell"); }
+    show("accessWell"); 
+    hide("remoteWell"); }
+  function actRemote()
+  { activate("menuRemote");
+    hide("statusWell");      hide("statisticsWell");
+    hide("adminConfigWell"); hide("adminForwarderWell");  hide("adminSystemInfoWell");
+    hide("logsWell"); 
+    hide("accessWell"); 
+    show("remoteWell"); }
+    
 
   function humanTime(t)
   { function c(x) { return x.toFixed(0).toString(); }
@@ -184,27 +197,19 @@
     require('bonescript').lorankctl('GetDiskfree',callback(proc)); }
 
   function getMacAddr()
-  { function proc(x)
-    { setValue("MacAddress",x); }
+  { function proc(x) { setValue("MacAddress",x); }
     require('bonescript').lorankctl("GetEth0Addr",callback(proc)); }
 
   function getUname()
-  { function proc(x)
-    { setValue("Uname",x); }
+  { function proc(x) { setValue("Uname",x); }
     require('bonescript').lorankctl("GetUname",callback(proc)); }
 
   function getDogtag()
-  { function proc(x)
-    { setValue("Dogtag",x); 
-      loginSupported = (x.indexOf("2015-03-01") >= 0) || (x.includes("2016-05-13") >= 0 );
-      if (loginSupported) 
-      { delClass("menuAccess","hidden");
-        delClass("menuLogout","hidden"); } }
+  { function proc(x) { setValue("Dogtag",x); }
     require('bonescript').lorankctl("GetDogtag",callback(proc)); }
 
   function getVersion()
-  { function proc(x)
-    { setValue("Version",x); }
+  { function proc(x) { setValue("Version",x); }
     require('bonescript').lorankctl("GetVersion",callback(proc)); }
 
   function upTime()
@@ -236,7 +241,8 @@
 
   function getConf()
   { function proc(x)
-    { configuration = JSON.parse(x);
+    { footerMessage("Received data.",false,10);
+      configuration = JSON.parse(x);
       if (configuration.hasOwnProperty('web_conf')) 
       { setValSave("WebUsernameInput",configuration.web_conf,"username");
         setValSave("WebPasswordInput",configuration.web_conf,"password"); }
@@ -254,14 +260,22 @@
         setValSave("ServerAddressInput",configuration.gateway_conf,"server_address") 
         setValSave("ServerDownPortInput",configuration.gateway_conf,"serv_port_down");
         setValSave("ServerUpPortInput",configuration.gateway_conf,"serv_port_up");
+        setValSave("ServerStallTime",configuration.gateway_conf,"serv_max_stall");
         setValue("GatewayIDInput",configuration.gateway_conf.gateway_ID);
         setValue("DescriptionInput",configuration.gateway_conf.description);
         setValue("ContactEmailInput",configuration.gateway_conf.contact_email);
         setValue("GPSlatitudeInput",configuration.gateway_conf.ref_latitude);
         setValue("GPSlongitudeInput",configuration.gateway_conf.ref_longitude);
-        setValue("GPSaltitudeInput",configuration.gateway_conf.ref_altitude); } }
+        setValue("GPSaltitudeInput",configuration.gateway_conf.ref_altitude); } 
+      if (configuration.hasOwnProperty('remote_conf')) 
+      { setChecked("RemoteSSH",configuration.remote_conf.ssh);
+        setChecked("RemoteWEB",configuration.remote_conf.web);
+        setValue("RemoteRebootInput",configuration.remote_conf.reboot);
+        setValue("RemoteAuthtokenInput",configuration.authtoken);
+        setValue("RemoteRegionSelect",configuration.region); } }
+    footerMessage("Contacting Lorank ...",false,0);    
     require('bonescript').lorankctl("GetConf",callback(proc)); }
-
+    
   function getStats()
   { function proc(x)
     { function tryBool(id,val)    { if (typeof val === "boolean") setText(id,(val ? "yes" : "no")); else setText(id,val); }
@@ -282,7 +296,7 @@
       function setArrayObj(prnt,obj,node)
       { var arr = obj[node];
         for (var nr=0; nr<=3; nr++)
-        { if (nr<arr.length)
+        { if (nr < arr.length)
           { for (var key in arr[nr]) prnt(key.concat("_d",nr+1),arr[nr][key]);
             show(node.concat("_l",(nr+1))); }
           else hide(node.concat("_l",(nr+1))); } }
@@ -290,7 +304,7 @@
       function setArrayVal(prnt,obj,node)
       { if (obj.hasOwnProperty(node))
         { if (Array.isArray(obj[node]))
-          { for (var nr=0; nr<=3; nr++) setElm(prnt,obj,node,nr,(nr<obj[node].length)); }
+          { for (var nr=0; nr<=3; nr++) setElm(prnt,obj,node,nr,(nr < obj[node].length)); }
           else prnt(node,obj[node]); } }
 
       function setTreeVal(prnt,obj,node)
@@ -353,6 +367,13 @@
     switchClass(succes,"ServerUpPortInput","bg-success","bg-danger");
     return succes; }
 
+  function checkServerStallTime()
+  { var stallStr = getValue("ServerStallTime");
+    var stall    = parseInt(stallStr);
+    var succes = (stallStr.length==0) || (stall==0) || (stall>300);
+    switchClass(succes,"ServerStallTime","bg-success","bg-danger");
+    return succes; }
+
   function checkServerCombi() 
   { var address   = getValue("ServerAddressInput");
     var portDwStr = getValue("ServerDownPortInput");
@@ -403,6 +424,19 @@
     switchClass(succes,"WebPasswordInput","bg-success","bg-danger");
     return succes; }
 
+  function checkAuthtoken()
+  { var token = getValue("RemoteAuthtokenInput");
+    var succes = (token.length>0) && isBasicStr(token,64);
+    switchClass(succes,"RemoteAuthtokenInput","bg-success","bg-danger");
+    return succes; }
+
+  function checkRebootTime()
+  { var timeStr = getValue("RemoteRebootInput");
+    var time    = parseInt(timeStr);
+    var succes = (timeStr.length==0) || (time>=600);
+    switchClass(succes,"RemoteRebootInput","bg-success","bg-danger");
+    return succes; }
+
   function makeID()
   { function blok() { return " " + ("000"+Math.floor(Math.random()*65536).toString(16)).substr(-4); }
     setValue("GatewayIDInput","1dee" + blok() + blok() + blok());
@@ -414,29 +448,53 @@
     var enabled = getChecked("LoginInput");
     if (enabled && !checkAll())  footerMessage("Some fields are invalid.",true,5);
     else
-    { if (!configuration.hasOwnProperty('web_conf')) configuration.web_conf = { };
+    { footerMessage("Contacting Lorank ...",false,0);
+      if (!configuration.hasOwnProperty('web_conf')) configuration.web_conf = { };
       configuration.web_conf.username  = getValue("WebUsernameInput");
       configuration.web_conf.password  = getValue("WebPasswordInput");
       var str = JSON.stringify(configuration);
       require('bonescript').lorankctl("SetConf|"+str,callback(proc)); } }
 
+  function updateRemote()
+  { var withSSH    = getChecked("RemoteSSH");
+    var withWEB    = getChecked("RemoteWEB");
+    var rebootTime = getValue("RemoteRebootInput");
+    var checkAll = ( !(withSSH && withWEB) || checkAuthtoken() ) && checkRebootTime(); 
+    function proc(x)   { footerMessage(x,false,10); }
+    function remote(x) 
+    { var msg = withSSH + " " + withWEB + " " + rebootTime;
+      require('bonescript').lorankctl("SetRemote|"+msg,callback(proc)); }
+    if (!checkAll) footerMessage("Some fields are invalid.",true,5);
+    else
+    { footerMessage("Contacting Lorank ...",false,0);
+      if (!configuration.hasOwnProperty('remote_conf')) configuration.remote_conf = { };
+      configuration.authtoken           = getValue("RemoteAuthtokenInput");
+      configuration.region              = getValue("RemoteRegionSelect");
+      configuration.metadata            = getValue("GatewayIDInput").replace(/[ \.]/g,"");
+      configuration.remote_conf.ssh     = withSSH;
+      configuration.remote_conf.web     = withWEB;
+      configuration.remote_conf.reboot  = rebootTime;
+      var str = JSON.stringify(configuration);
+      require('bonescript').lorankctl("SetConf|"+str,remote(proc)); } }
+
   function updateConf()
   { function checkAll()
-    { return checkServerAddress() && checkServerDownPort() && checkServerUpPort() && checkServerCombi() &&
+    { return checkServerAddress() && checkServerDownPort() && checkServerUpPort() && checkServerStallTime() && checkServerCombi() &&
              checkGatewayID() && checkDescription() && checkContactEmail() &&
              checkGPSlatitude() && checkGPSlongitude() && checkGPSaltitude(); }
     function proc(x) { footerMessage(x,false,10); }
     if (concentratorRunning)  footerMessage("Cannot update while concentrator is running.",true,5);
     else if (!checkAll())     footerMessage("Some fields are invalid.",true,5);
     else
-    { if (!configuration.hasOwnProperty('gateway_conf')) configuration.gateway_conf = { };
+    { footerMessage("Contacting Lorank ...",false,0);
+      if (!configuration.hasOwnProperty('gateway_conf')) configuration.gateway_conf = { };
       if (!getIndet("BeaconInput"))       configuration.gateway_conf.beacon         = getChecked("BeaconInput");
       if (!getIndet("LoggerInput"))       configuration.gateway_conf.logger         = getChecked("LoggerInput");
       if (!getIndet("UpstreamInput"))     configuration.gateway_conf.upstream       = getChecked("UpstreamInput");
       if (!getIndet("DownstreamInput"))   configuration.gateway_conf.downstream     = getChecked("DownstreamInput");
       if (!getIndet("StatusstreamInput")) configuration.gateway_conf.statusstream   = getChecked("StatusstreamInput");
-      if (getRadio("log_select","")!="")  configuration.gateway_conf.stat_format    = getRadio("log_select","")
-      configuration.gateway_conf.gateway_ID     = getValue("GatewayIDInput");
+      if (getRadio("log_select","")!="")  configuration.gateway_conf.stat_format    = getRadio("log_select","");
+      configuration.gateway_conf.gateway_ID     = getValue("GatewayIDInput").replace(/[ \.]/g,"");
       configuration.gateway_conf.description    = getValue("DescriptionInput");
       configuration.gateway_conf.contact_email  = getValue("ContactEmailInput") ;
       configuration.gateway_conf.ref_latitude   = parseFloat(getValue("GPSlatitudeInput"));
@@ -445,6 +503,7 @@
       if (isEmpty("ServerAddressInput"))  delete configuration.gateway_conf.server_address; else configuration.gateway_conf.server_address = getValue("ServerAddressInput");
       if (isEmpty("ServerDownPortInput")) delete configuration.gateway_conf.serv_port_down; else configuration.gateway_conf.serv_port_down = parseInt(getValue("ServerDownPortInput"));
       if (isEmpty("ServerUpPortInput"))   delete configuration.gateway_conf.serv_port_up;   else configuration.gateway_conf.serv_port_up   = parseInt(getValue("ServerUpPortInput"));
+      if (isEmpty("ServerStallTime"))     delete configuration.gateway_conf.serv_max_stall; else configuration.gateway_conf.serv_max_stall = parseInt(getValue("ServerStallTime"));
       var str = JSON.stringify(configuration);
       require('bonescript').lorankctl("SetConf|"+str,callback(proc)); } }
 
@@ -463,8 +522,9 @@
     <li id="menuStatus" role="presentation" class="active"><a href="#" onclick="actStatus()">Status</a></li>
     <li id="menuAdmin"  role="presentation" class=""><a href="#" onclick="actAdmin()">Admin</a></li>
     <li id="menuLogs"   role="presentation" class=""><a href="#" onclick="actLogs()">Logs</a></li>
-    <li id="menuAccess" role="presentation" class="hidden"><a href="#" onclick="actAccess()">Access</a></li>
-    <li id="menuLogout" role="presentation" class="hidden"><a href="/logout">Logout</a></li>
+    <li id="menuAccess" role="presentation" class=""><a href="#" onclick="actAccess()">Access</a></li>
+    <li id="menuRemote" role="presentation" class=""><a href="#" onclick="actRemote()">Remote</a></li>
+    <li id="menuLogout" role="presentation" class=""><a href="/logout">Logout</a></li>
   </ul>
 </div>
 
@@ -618,6 +678,7 @@
 
 </div>
 
+
 <div id="adminSystemInfoWell" class="well hidden">
 
   <div style="display:flex">
@@ -644,6 +705,7 @@
   </div>
 
 </div>
+
 
 <div id="adminForwarderWell" class="well hidden">
   <p>The Lorank comes with three forwarders preinstalled. Per default, the poly packet forwarder is running. This forwarder is
@@ -778,12 +840,18 @@
     <input class="back" id="ServerUpPortInput" onkeyup="checkServerUpPort()">
   </div>
   <br/>
+  <div style="display:flex">
+    <div class="front">Stall Time (sec)</div>
+    <input class="back" id="ServerStallTime" onkeyup="checkServerStallTime()">
+  </div>
+  <br/>
 
   <button id="getConfBtn" type="button" class="btn btn-info"    onclick="getConf()">Get Configuration</button>
   <button id="makeIDBtn"  type="button" class="btn btn-info"    onclick="makeID()">Make New ID</button>
   <button id="setConfBtn" type="button" class="btn btn-warning" onclick="updateConf()">Update Configuration</button>
 
 </div>
+
 
 <div id="logsWell" class="well hidden">
 
@@ -805,20 +873,28 @@
 
 </div>
 
+
 <div id="accessWell" class="well hidden">
 
   <p> It is possible to set a username and password to protect against accidental misuse of this website. However,
   this offers no protection to eavesdropping, since the password is marshalled in clear text over the network
   to your gateway. Remember that the Lorank 8 should be operated behind a firewall and shielded from the internet
   or any other networks you do not trust. </p>
-  <p>Activation or deactivation of the login facility requires a reboot. Please perform this manually on the
+  
+  <p> Activation or deactivation of the login facility requires a reboot. Please perform this manually on the
   'Admin' page after the credentials have been updated. Just changing the username and/or password does
   not require a reboot, just an 'update credentials' and is effective immediately. Should you forget the
   credentials, use ssh to login to the Lorank 8 directly and edit the local_conf.json.</p>
+  
+  <p>Important: This facility only works with Linux Distro's from 2015 and later, see the Admin page for your version"</p>
+  
+  <p> If you activate remote control as well, make sure you to tunnel this website over SSL, if you also
+  want to activate access control. There is no other secure way to prohibit eavesdropping in this
+  case. </p>
 
   <div style="display:flex">
      <div class="front">Use Login</div>
-     <span><input class="back" id="LoginInput" type="checkbox" onchange="modifyLogin()">&nbsp;&nbsp;Please reboot after 'Update credentials' to activate if changed.</span>
+     <input class="back" id="LoginInput" type="checkbox" onchange="modifyLogin()">
   </div>
   <br/>
   <div style="display:flex">
@@ -832,10 +908,84 @@
   </div>
   <br/>
 
-  <button id="setPassBtn" type="button" class="btn btn-warning" onclick="updatePass()">Update credentials</button>
-
+  <p>Please reboot if you activated or deactivated the service.</p>
+  <button id="getCredsBtn" type="button" class="btn btn-info"    onclick="getConf()">Get Credentials</button>
+  <button id="setCredsBtn" type="button" class="btn btn-warning" onclick="updatePass()">Update Credentials</button>
 
 </div>
+
+
+<div id="remoteWell" class="well hidden">
+
+  <p> It is possible 'remote control' this gateway over the Internet, even if it is behind a firewall or NAT. 
+  To that end activate the Ngrok service. Note this is a third party service, and you need to get a (free) 
+  account to make use of its possibilites. You can expose two endpoints. One is for using SSH to log in (make
+  sure you first change your password!), the other is for the internal website. Although these endpoints are 
+  hard to guess, they are public, so the latter may not be safe. For paid accounts there are other 
+  possibilities, for example IP Whitelisting, which adds an extra layer of security, see the website 
+  <a href="https://ngrok.com">Ngrok</a> for more information.
+  </p>
+  
+  <p>The documentation on the Ngrok website can be somewhat overwheling, but the basic steps are very
+  simple. Note we assume the Lorank has Internet connection, and has already been configured to work
+  properly with the LoRa backend of your choice.
+  <ul>
+    <li>First create an account on <a href="https://dashboard.ngrok.com/signup">Ngrok Signup</a></li>
+    <li>In your dashboard, browse to 'Auth', and copy the "Tunnel Authtoken", paste that below.</li>
+    <li>Select both 'Expose SSH' and 'Expose Website' below, just for now, you can change that later.
+    <li>Also, select in what region your gateway is located (any region will work, but the closer by, the faster the service is)</li>   
+    <li>Click 'Update Credentials', reboot your Lorank thereafter and give it a few minutes.</li>   
+    <li>Then, browse to the 'Status' page in your Ngrok dashboard. Two tunnels should be visible, something like: 
+        <font color="red">tcp://0.tcp.eu.ngrok.io:12345</font> and <font color="red">http://12345678.eu.ngrok.io/</font>. 
+        The latter is clickable and brings you straight to your Lorank Website. The former can be used to log in with 
+        SSH on port 12345, so with the command <font color="red">ssh -p 12345 root@0.tcp.eu.ngrok.io'</font> </li>   
+  </ul> </p>
+   
+  <p> It can always happen that a (mobile) internet connection dies for some reason. The advise of the carrier 
+  in that case usually is: "restart your system", which is kind of hard if you cannot reach it anymore. Therefore, 
+  you can activate an 'auto reboot' service, which automatically reboots your Lorank if the internet connection is 
+  lost for some time. Value in seconds, with a minumum of 600. Note this applies to the internet connection, not the connection to your Lora backend.
+  For that, use the 'Stall Time' on the Admin page.</p>
+  
+
+  <div style="display:flex">
+     <div class="front">Expose SSH</div>
+     <input class="back" id="RemoteSSH" type="checkbox">
+  </div>
+  <div style="display:flex">
+     <div class="front">Expose Website</div>
+     <input class="back" id="RemoteWEB" type="checkbox">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">Auth Token</div>
+    <input class="back" id="RemoteAuthtokenInput" onkeyup="checkAuthtoken()">
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">Region</div>
+    <select id="RemoteRegionSelect">
+      <option value="eu">Africa/Europe</option>
+      <option value="ap">Asia/Pacific</option>
+      <option value="au">Australia</option>
+      <option value="us">North America</option>
+      <option value="sa">South America</option>
+      <option value="in">India</option>
+      <option value="jp">Japan</option>
+    </select>
+  </div>
+  <br/>
+  <div style="display:flex">
+    <div class="front">Auto Reboot (sec)</div>
+    <input class="back" id="RemoteRebootInput" onkeyup="checkRebootTime()">
+  </div>
+  <br/>
+  
+  <button id="getSetsBtn" type="button" class="btn btn-info"    onclick="getConf()">Get Settings</button>
+  <button id="setSetsBtn" type="button" class="btn btn-warning" onclick="updateRemote()">Update Settings</button>
+
+</div>
+
 
 <div id="footerWell" class="well">
   <div id="footerText" class="alert alert-info" role="alert"></div>

@@ -1,0 +1,15 @@
+{ "console_ui": false,
+  "log_level": "info",
+  "log_format": "logfmt",
+  "log": "/var/log/ngrok.log",
+  "tunnels":
+  { "web":
+    { "proto": "http",
+      "addr": 80,
+      "remote_addr": 80,
+      "bind_tls": false,
+      "inspect": false },
+  "ssh":
+  { "proto": "tcp",
+    "addr": 22,
+    "inspect": false } } }

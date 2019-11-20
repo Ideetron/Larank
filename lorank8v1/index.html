@@ -48,17 +48,18 @@
   var configuration         = {};
   var activeMenu            = "menuStatus";
 
-  if (window.onload)
-  { var presentOnload = window.onload;
-    var extendOnload  = function(param) { presentOnload(param); startTimers(); };
-    window.onload = extendOnload; }
-  else
-  { window.onload = startTimers; }
+  function loadedModule(name) 
+  { try 
+    { require(name); 
+      return true; } 
+    catch(e) {};
+    return false; }
 
   function startTimers()
   { setTimeout(fastLoop,1000);
     setTimeout(slowLoop,1500);
-    setTimeout(onceLoop,500); }
+    setTimeout(start1Loop,800); 
+    setTimeout(start2Loop,1200); }
   function fastLoop()
   { setTimeout(fastLoop,5051);
     upTime();
@@ -73,6 +74,9 @@
     getDogtag();
     getVersion();
     getConf(); }
+  function start1Loop() { if (document.readyState === 'loading' || !loadedModule('bonescript') ) setTimeout(start1Loop,513); else getConf(); }
+  function start2Loop() { if (document.readyState === 'loading' || !loadedModule('bonescript') ) setTimeout(start2Loop,541); else getColInfo(); }
+    
 
   function getValue(id)         { return document.getElementById(id).value.trim(); }
   function getChecked(id)       { return document.getElementById(id).checked; }
@@ -169,7 +173,13 @@
     hide("accessWell"); 
     show("remoteWell"); }
     
-
+  function unlockMenu()
+  { show("menuStatus"); 
+    show("menuAdmin"); 
+    show("menuLogs"); 
+    show("menuAccess");  
+    show("menuRemote"); }
+    
   function humanTime(t)
   { function c(x) { return x.toFixed(0).toString(); }
     if (t<60)           { return c(t/1)+" seconds"; }
@@ -211,6 +221,15 @@
   function getVersion()
   { function proc(x) { setValue("Version",x); }
     require('bonescript').lorankctl("GetVersion",callback(proc)); }
+    
+  function getColInfo()
+  { function proc(x) 
+    { var info = x.split(";")
+      setValue("MacAddress",info[0]);
+      setValue("Uname",info[1]);
+      setValue("Dogtag",info[2]); 
+      setValue("Version",info[3]); }
+    require('bonescript').lorankctl("GetColInfo",callback(proc)); }  
 
   function upTime()
   { function proc(x)
@@ -272,7 +291,8 @@
         setChecked("RemoteWEB",configuration.remote_conf.web);
         setValue("RemoteRebootInput",configuration.remote_conf.reboot);
         setValue("RemoteAuthtokenInput",configuration.authtoken);
-        setValue("RemoteRegionSelect",configuration.region); } }
+        setValue("RemoteRegionSelect",configuration.region); } 
+      unlockMenu(); }
     footerMessage("Contacting Lorank ...",false,0);    
     require('bonescript').lorankctl("GetConf",callback(proc)); }
     
@@ -510,7 +530,8 @@
   function startConcentrator()
   { simpleAction("DoStartConc|"+getRadio("fw_select","fw_none")); }
 
-
+  startTimers();
+  
   </script>
 </head>
 <br/>
@@ -520,11 +541,11 @@
 <div class="well">
   <ul class="nav nav-pills">
     <li id="menuStatus" role="presentation" class="active"><a href="#" onclick="actStatus()">Status</a></li>
-    <li id="menuAdmin"  role="presentation" class=""><a href="#" onclick="actAdmin()">Admin</a></li>
+    <li id="menuAdmin"  role="presentation" class="hidden"><a href="#" onclick="actAdmin()">Admin</a></li>
     <li id="menuLogs"   role="presentation" class=""><a href="#" onclick="actLogs()">Logs</a></li>
-    <li id="menuAccess" role="presentation" class=""><a href="#" onclick="actAccess()">Access</a></li>
-    <li id="menuRemote" role="presentation" class=""><a href="#" onclick="actRemote()">Remote</a></li>
-    <li id="menuLogout" role="presentation" class=""><a href="/logout">Logout</a></li>
+    <li id="menuAccess" role="presentation" class="hidden"><a href="#" onclick="actAccess()">Access</a></li>
+    <li id="menuRemote" role="presentation" class="hidden"><a href="#" onclick="actRemote()">Remote</a></li>
+    <li id="menuLogout" role="presentation" class="hidden"><a href="/logout">Logout</a></li>
   </ul>
 </div>
 

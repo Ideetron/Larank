@@ -47,6 +47,15 @@ function modRemote
   echo "Processing remote ... "
 }
 
+function collectInfo
+{ Eth0Addr=$(cat /sys/class/net/eth0/address)
+  Uname=$(uname -a)
+  Dogtag=$(cat /etc/dogtag)
+  Version=$(cd /root/Lorank; git status | head -n 1)
+  echo "$Eth0Addr;$Uname;$Dogtag;$Version"
+}
+
+
 if   [[  $1 == "DoShutdown"    ]]; then shutdown -h now && echo "Shutting down ...";
 elif [[  $1 == "DoReboot"      ]]; then reboot && echo "Rebooting ... ";
 elif [[  $1 == "DoStartConc"   ]]; then startConcentrator $2;
@@ -63,6 +72,7 @@ elif [[  $1 == "GetDogtag"     ]]; then cat /etc/dogtag;
 elif [[  $1 == "GetStats"      ]]; then cat $LOCSTAT;
 elif [[  $1 == "GetForwarder"  ]]; then cat $LOCFRWD;
 elif [[  $1 == "GetSysInfo"    ]]; then echo $(cat /proc/uptime)";"$(cat /proc/loadavg)";"$(date);
+elif [[  $1 == "GetColInfo"    ]]; then collectInfo;
 elif [[  $1 == "GetLogs50"     ]]; then tail -n 50 /var/log/syslog;
 elif [[  $1 == "GetLogs200"    ]]; then tail -n 200 /var/log/syslog;
 elif [[  $1 == "GetLogsOn"     ]]; then tail -f /var/log/syslog;
@@ -73,4 +83,3 @@ elif [[  $1 == "SetConf"       ]]; then echo -n $2 > $LOCCONF && echo "Updating 
 elif [[  $1 == "SetRemote"     ]]; then modRemote $2;
 else logger -s "ERROR: lorankctl received unknown command: $1"
 fi
-

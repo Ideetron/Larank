@@ -56,10 +56,11 @@
     return false; }
 
   function startTimers()
-  { setTimeout(fastLoop,1000);
-    setTimeout(slowLoop,1500);
-    setTimeout(start1Loop,800); 
-    setTimeout(start2Loop,1200); }
+  { setTimeout(onceLoop,500);
+    setTimeout(start1Loop,1000); 
+    setTimeout(start2Loop,1500);
+    setTimeout(fastLoop,2000);
+    setTimeout(slowLoop,2500); }
   function fastLoop()
   { setTimeout(fastLoop,5051);
     upTime();
@@ -68,12 +69,7 @@
   function slowLoop()
   { setTimeout(slowLoop,60033);
     diskFree(); }
-  function onceLoop()
-  { getMacAddr();
-    getUname();
-    getDogtag();
-    getVersion();
-    getConf(); }
+  function onceLoop()   { loadedModule('bonescript'); }  
   function start1Loop() { if (document.readyState === 'loading' || !loadedModule('bonescript') ) setTimeout(start1Loop,513); else getConf(); }
   function start2Loop() { if (document.readyState === 'loading' || !loadedModule('bonescript') ) setTimeout(start2Loop,541); else getColInfo(); }
     

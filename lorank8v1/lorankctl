@@ -39,7 +39,7 @@ function modRemote
     systemctl enable ngrok.service > /dev/null 2>&1 
     systemctl start ngrok.service 
   fi  
-  if [ $3 -gt 0 ]
+  if [ -n "$3" ] && [ "$3" -gt 0 ]
   then 
     systemctl enable restart.service > /dev/null 2>&1 
     systemctl start restart.service 

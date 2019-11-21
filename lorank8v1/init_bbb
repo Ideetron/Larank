@@ -30,10 +30,6 @@ mkdir -p /root/savesys
 cp Lorank/$TARGETDIR/lorank.service /lib/systemd/system/
 systemctl enable lorank.service
 
-# Install the optional services, but do not enable them yet.
-cp Lorank/$TARGETDIR/restart.service /lib/systemd/system/
-cp Lorank/$TARGETDIR/ngrok.service /lib/systemd/system/
-
 # Disable HDMI on the BBB, enable SPI
 if [ -e /boot/uEnv.txt ]
 then

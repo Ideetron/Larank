@@ -4,7 +4,7 @@ Description=Lorank remote
 [Service]
 WorkingDirectory=/root/lorank8v1/
 EnvironmentFile=/root/lorank8v1/remote.env 
-ExecStart=ngrok start -config ngrok_conf.json -config local_conf.json $TNL
+ExecStart=/usr/bin/ngrok start -config ngrok_conf.json -config local_conf.json $TNL
 SyslogIdentifier=lorank8v1.remote
 Restart=on-failure
 RestartSec=30

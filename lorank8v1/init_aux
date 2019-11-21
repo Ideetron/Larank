@@ -25,3 +25,8 @@ cp Lorank/$TARGETDIR/restart       $TARGETDIR/
 # Install the configuration files for remote contol
 cp Lorank/$TARGETDIR/ngrok_conf.json    $TARGETDIR/
 cp Lorank/$TARGETDIR/remote.env         $TARGETDIR/
+
+# Install the optional services, but do not enable them yet.
+cp Lorank/$TARGETDIR/restart.service /lib/systemd/system/
+cp Lorank/$TARGETDIR/ngrok.service /lib/systemd/system/
+

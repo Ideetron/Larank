@@ -1,2 +1,2 @@
 # Larank
-Software for the Lorank product range.
+Software for the Larank product range.

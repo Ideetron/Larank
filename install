@@ -18,6 +18,14 @@ led_blank
 led_flash 0
 sleep 1
 
+# Check if we start at the correct location
+if [ -d Larank ]
+then
+  mv Larank Lorank
+fi
+
+mkdir -p $HWTARGET
+
 # Set the Lorank installation software to the correct release.
 pushd Lorank
 if [[ $SWVERSION != "" ]]; then git checkout -q Lorank_v$SWVERSION; fi
@@ -33,7 +41,6 @@ else
   exit 1
 fi
 
-
 # We are done, check if we must report an error, if not terminate.
 if [ $? -ne 0 ];
 then
@@ -41,4 +48,3 @@ then
 else
   systemctl --no-block poweroff
 fi
-
